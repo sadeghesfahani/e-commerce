@@ -1,0 +1,13 @@
+# PostgreSQL
+# ------------------------------------------------------------------------------
+POSTGRES_HOST=postgres
+POSTGRES_PORT=5432
+POSTGRES_DB=ecommerce
+POSTGRES_USER=root
+POSTGRES_PASSWORD=root
+
+# PgAdmin
+# ------------------------------------------------------------------------------
+PGADMIN_LISTEN_PORT=5050
+PGADMIN_DEFAULT_EMAIL=user
+PGADMIN_DEFAULT_PASSWORD=password

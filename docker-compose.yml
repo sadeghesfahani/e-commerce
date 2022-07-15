@@ -1,0 +1,61 @@
+version: '3.7'
+services:
+  mitaapp:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    ports:
+      - "8000:8000"
+      - "63342:63342"
+    links:
+      - postgres:postgres
+      - redis:redis
+    env_file:
+      - ./environments/production.env
+#    command: gunicorn --bind 0.0.0.0:8000 mita.wsgi
+    command: python3 manage.py runserver 0.0.0.0:8000
+    depends_on:
+      - redis
+      - postgres
+    volumes:
+
+      - ./:/opt/services/app/src
+      - ./media:/opt/services/app/src/media
+
+
+  redis:
+    image: redis:6
+    restart: always
+    command: ["redis-server", "--appendonly", "yes"]
+    hostname: redis
+    volumes:
+      - redis-data:/data
+
+  postgres:
+    image: postgres:13
+    restart: always
+    environment:
+      - POSTGRES_USER=mitadatabaseuser
+      - POSTGRES_PASSWORD=9.2CE'F#My?#r)Yj
+      - POSTGRES_DB=mita
+    volumes:
+      - postgres:/var/lib/postgresql/data
+
+
+  pgadmin:
+    image: dpage/pgadmin4
+    container_name: pgadmin_mita
+    depends_on:
+      - postgres
+    env_file:
+      - environments/.postgres
+    ports:
+      - "5050:5050"
+
+volumes:
+  redis-data:
+  postgres:
+  file-data:
+
+
+
