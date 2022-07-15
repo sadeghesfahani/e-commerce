@@ -1,6 +1,6 @@
 version: '3.7'
 services:
-  mitaapp:
+  backend:
     build:
       context: .
       dockerfile: Dockerfile
@@ -12,7 +12,6 @@ services:
       - redis:redis
     env_file:
       - ./environments/production.env
-#    command: gunicorn --bind 0.0.0.0:8000 mita.wsgi
     command: python3 manage.py runserver 0.0.0.0:8000
     depends_on:
       - redis
@@ -35,9 +34,9 @@ services:
     image: postgres:13
     restart: always
     environment:
-      - POSTGRES_USER=mitadatabaseuser
-      - POSTGRES_PASSWORD=9.2CE'F#My?#r)Yj
-      - POSTGRES_DB=mita
+      - POSTGRES_USER=root
+      - POSTGRES_PASSWORD=root
+      - POSTGRES_DB=ecommerce
     volumes:
       - postgres:/var/lib/postgresql/data
 
