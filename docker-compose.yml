@@ -1,6 +1,6 @@
 version: '3.7'
 services:
-  backend:
+  ecommerce:
     build:
       context: .
       dockerfile: Dockerfile
@@ -17,9 +17,8 @@ services:
       - redis
       - postgres
     volumes:
-
+      - file-data:/opt/services/app/file_access
       - ./:/opt/services/app/src
-      - ./media:/opt/services/app/src/media
 
 
   redis:
@@ -39,11 +38,12 @@ services:
       - POSTGRES_DB=ecommerce
     volumes:
       - postgres:/var/lib/postgresql/data
-
+    ports:
+      - "5432:5432"
 
   pgadmin:
     image: dpage/pgadmin4
-    container_name: pgadmin_mita
+    container_name: pgadmin_ecommerce
     depends_on:
       - postgres
     env_file:

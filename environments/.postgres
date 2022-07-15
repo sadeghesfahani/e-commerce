@@ -9,5 +9,5 @@ POSTGRES_PASSWORD=root
 # PgAdmin
 # ------------------------------------------------------------------------------
 PGADMIN_LISTEN_PORT=5050
-PGADMIN_DEFAULT_EMAIL=user
+PGADMIN_DEFAULT_EMAIL=user@gmail.com
 PGADMIN_DEFAULT_PASSWORD=password

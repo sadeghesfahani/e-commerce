@@ -39,7 +39,6 @@ DJANGO_APPS = [
     "django_celery_beat",
     'rest_framework',
     'rest_framework.authtoken',
-    'azbankgateways',
     'corsheaders',
     'django.contrib.postgres',
 ]
@@ -58,6 +57,10 @@ MIDDLEWARE = [
 ]
 
 ROOT_URLCONF = 'e_commerce.urls'
+
+LOCAL_APP =[]
+INSTALLED_APPS = DJANGO_APPS + LOCAL_APP
+
 
 TEMPLATES = [
     {
@@ -93,7 +96,7 @@ DATABASES = {
 
         'PASSWORD': "root",
 
-        'HOST': 'postgres',
+        'HOST': 'localhost',
 
         'PORT': '5432',
 
