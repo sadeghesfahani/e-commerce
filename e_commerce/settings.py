@@ -58,7 +58,9 @@ MIDDLEWARE = [
 
 ROOT_URLCONF = 'e_commerce.urls'
 
-LOCAL_APP =[]
+LOCAL_APP =[
+    'user',
+]
 INSTALLED_APPS = DJANGO_APPS + LOCAL_APP
 
 
@@ -96,7 +98,7 @@ DATABASES = {
 
         'PASSWORD': "root",
 
-        'HOST': 'localhost',
+        'HOST': 'postgres',
 
         'PORT': '5432',
 
@@ -142,3 +144,4 @@ STATIC_URL = 'static/'
 # https://docs.djangoproject.com/en/4.0/ref/settings/#default-auto-field
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
+AUTH_USER_MODEL = 'user.User'

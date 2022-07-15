@@ -12,13 +12,12 @@ services:
       - redis:redis
     env_file:
       - ./environments/production.env
-    command: python3 manage.py runserver 0.0.0.0:8000
+#    command:  bash -c "python3 manage.py makemigrations && python3 manage.py migrate && python3 manage.py runserver 0.0.0.0:8000"
     depends_on:
       - redis
       - postgres
     volumes:
-      - file-data:/opt/services/app/file_access
-      - ./:/opt/services/app/src
+      - ./:/usr/src/app
 
 
   redis:
