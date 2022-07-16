@@ -33,6 +33,7 @@ class CategoryDataStructure:
     def _set_parameter(self, parameter, value):
         if value is not None:
             if parameter == "parent":
-                self.parent = get_object_or_404(Category, value)
+                print("----------------------------------------------------------------",value)
+                self.parent = get_object_or_404(Category, id=value)
             else:
                 self.__dict__[parameter] = value

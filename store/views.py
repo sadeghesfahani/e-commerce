@@ -1,4 +1,4 @@
-from django.shortcuts import render
+from django.shortcuts import render, get_object_or_404
 
 # Create your views here.
 from rest_framework import viewsets, status
@@ -12,8 +12,6 @@ from store.viewset_base import ViewSetBase
 
 
 class ProductAPI(ViewSetBase):
-
-
 
     def create_product(self, request):
         parameters = self.generate_parameters(request)
@@ -39,6 +37,20 @@ class CategoryAPI(ViewSetBase):
             new_category = Category.objects.create(**structured_category.__dict__)
             new_category.save()
             return Response(CategorySerializer(new_category, many=False, read_only=True).data, status=status.HTTP_201_CREATED)
+        except Exception as ex:
+            return Response({"status": "failed", "message": str(ex), "parameters": self.generate_parameters(request)},
+                            status=status.HTTP_406_NOT_ACCEPTABLE)
+
+    def edit_category(self, request, category_id):
+        parameters = self.generate_parameters(request)
+        structured_category = CategoryDataStructure(**parameters)
+        category = get_object_or_404(Category, id=category_id)
+        try:
+            category.__dict__.update(**structured_category.__dict__)
+            if structured_category.__dict__.get("parent"):
+                category.parent = get_object_or_404(Category, id=structured_category.__dict__.get("parent").id)
+            category.save()
+            return Response(CategorySerializer(category, many=False, read_only=True).data, status=status.HTTP_200_OK)
         except Exception as ex:
             return Response({"status": "failed", "message": str(ex), "parameters": self.generate_parameters(request)},
                             status=status.HTTP_406_NOT_ACCEPTABLE)
