@@ -21,7 +21,7 @@ class ProductDataStructure:
     def _set_parameter(self, parameter, value):
         if value is not None:
             if parameter == "category":
-                self.category = get_object_or_404(Category, value)
+                self.category = get_object_or_404(Category, id=value)
             else:
                 self.__dict__[parameter] = value
 
