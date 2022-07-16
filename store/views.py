@@ -1,3 +1,4 @@
+from django.http import Http404
 from django.shortcuts import render, get_object_or_404
 
 # Create your views here.
@@ -20,6 +21,38 @@ class ProductAPI(ViewSetBase):
             new_product = Product.objects.create(**structured_product.__dict__)
             new_product.save()
             return Response(ProductSerializer(new_product, many=False, read_only=True).data, status=status.HTTP_201_CREATED)
+        except Exception as ex:
+            return Response({"status": "failed", "message": str(ex), "parameters": self.generate_parameters(request)},
+                            status=status.HTTP_406_NOT_ACCEPTABLE)
+
+    @staticmethod
+    def get_all_products(request):
+        products = Product.objects.all()
+        return Response(ProductSerializer(products, many=True, read_only=True).data)
+
+    @staticmethod
+    def get_category_products(request, category_id):
+        if Category.objects.filter(id=category_id).exists():
+            products = Product.objects.filter(category_id=category_id)
+            return Response(ProductSerializer(products, many=True, read_only=True).data)
+        else:
+            raise Http404
+
+    @staticmethod
+    def get_product_by_id(request, product_id):
+        product = get_object_or_404(Product, id=product_id)
+        return Response(ProductSerializer(product, many=False, read_only=True).data)
+
+    def edit_product(self, request, product_id):
+        parameters = self.generate_parameters(request)
+        structured_product = ProductDataStructure(**parameters)
+        try:
+            product = get_object_or_404(Product, id=product_id)
+            product.__dict__.update(**structured_product.__dict__)
+            if structured_product.__dict__.get('category'):
+                product.category = get_object_or_404(Category, id=structured_product.__dict__.get("category").id)
+            product.save()
+            return Response(ProductSerializer(product, many=False, read_only=True).data, status=status.HTTP_200_OK)
         except Exception as ex:
             return Response({"status": "failed", "message": str(ex), "parameters": self.generate_parameters(request)},
                             status=status.HTTP_406_NOT_ACCEPTABLE)
