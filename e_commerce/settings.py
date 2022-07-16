@@ -63,7 +63,10 @@ LOCAL_APP =[
     'store'
 ]
 INSTALLED_APPS = DJANGO_APPS + LOCAL_APP
-
+REST_FRAMEWORK = {
+    'DEFAULT_AUTHENTICATION_CLASSES': (
+        'rest_framework.authentication.TokenAuthentication',
+    ), }
 
 TEMPLATES = [
     {
