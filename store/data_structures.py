@@ -7,6 +7,8 @@ class ProductDataStructure:
     def __init__(self, **kwargs):
         self._set_parameter("name", kwargs.get("name"))
         self._set_parameter("slug", kwargs.get("slug"))
+        self._set_parameter("price", kwargs.get("price"))
+        self._set_parameter("final_price", kwargs.get("final_price"))
         self._set_parameter("description", kwargs.get("description"))
         self._set_parameter("category", kwargs.get("category"))
         self._set_parameter("main_image", kwargs.get("mainImage"))

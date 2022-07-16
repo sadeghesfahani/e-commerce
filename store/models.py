@@ -19,7 +19,7 @@ class Product(models.Model):
     slug = models.SlugField(max_length=100, null=True, blank=True)
     description = models.TextField(null=True, blank=True)
     price = models.DecimalField(max_digits=20, decimal_places=2)
-    last_price = models.DecimalField(max_digits=20, decimal_places=2)
+    final_price = models.DecimalField(max_digits=20, decimal_places=2)
     main_image = models.CharField(max_length=25000, null=True, blank=True)
     images = models.JSONField(blank=True, null=True)
     attributes = models.JSONField(blank=True, null=True)
