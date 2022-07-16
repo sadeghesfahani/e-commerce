@@ -21,3 +21,8 @@ docker-compose up
 sudo docker-compose up
 ```
 را اجرا نمایید و پس از اتمام دستور بک اند شما بر روی پورت ۸۰۰۰ قابل دسترس است
+
+
+برای اطلاعات بیشتر از چگونگی عملکرد اندپوینت ها به
+[مستندات](https://github.com/sadeghesfahani/e-commerce/wiki/%D9%85%D8%B3%D8%AA%D9%86%D8%AF%D8%A7%D8%AA)
+مراجعه فرمایید.
