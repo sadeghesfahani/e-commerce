@@ -24,7 +24,7 @@ SECRET_KEY = 'django-insecure-!&kkbe3fwd#okq&g#sl8q*vj8wla!arvu*gez+zo)fg88r$pg$
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = []
+ALLOWED_HOSTS = ["*"]
 
 # Application definition
 
@@ -60,6 +60,7 @@ ROOT_URLCONF = 'e_commerce.urls'
 
 LOCAL_APP =[
     'user',
+    'store'
 ]
 INSTALLED_APPS = DJANGO_APPS + LOCAL_APP
 

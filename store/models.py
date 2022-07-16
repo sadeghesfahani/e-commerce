@@ -53,7 +53,7 @@ class Basket(models.Model):
 
 
 class Address(models.Model):
-    user = models.ForeignKey(User, on_delete=models.CASCADE)
+    user = models.ForeignKey(User, on_delete=models.CASCADE,related_name="user_address")
     name = models.CharField(max_length=100)
     phone = models.CharField(max_length=100, blank=True, null=True)
     address = models.CharField(max_length=100)
