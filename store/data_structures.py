@@ -20,4 +20,19 @@ class ProductDataStructure:
         if value is not None:
             if parameter == "category":
                 self.category = get_object_or_404(Category, value)
-            self.__dict__[parameter] = value
+            else:
+                self.__dict__[parameter] = value
+
+
+class CategoryDataStructure:
+    def __init__(self, **kwargs):
+        self._set_parameter("name", kwargs.get("name"))
+        self._set_parameter("parent", kwargs.get("parent"))
+        self._set_parameter("slug", kwargs.get("slug"))
+
+    def _set_parameter(self, parameter, value):
+        if value is not None:
+            if parameter == "parent":
+                self.parent = get_object_or_404(Category, value)
+            else:
+                self.__dict__[parameter] = value

@@ -5,30 +5,45 @@ from rest_framework import viewsets, status
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
 
-from store.data_structures import ProductDataStructure
-from store.models import Product
-from store.serializers import ProductSerializer
+from store.data_structures import ProductDataStructure, CategoryDataStructure
+from store.models import Product, Category
+from store.serializers import ProductSerializer, CategorySerializer
+from store.viewset_base import ViewSetBase
 
 
-class ProductAPI(viewsets.ViewSet):
+class ProductAPI(ViewSetBase):
+
+
 
     def create_product(self, request):
         parameters = self.generate_parameters(request)
         structured_product = ProductDataStructure(**parameters)
-        new_product = Product.objects.create(**structured_product.__dict__)
-        new_product.save()
-        return Response(ProductSerializer(new_product, many=False, read_only=True).data, status=status.HTTP_201_CREATED)
+        try:
+            new_product = Product.objects.create(**structured_product.__dict__)
+            new_product.save()
+            return Response(ProductSerializer(new_product, many=False, read_only=True).data, status=status.HTTP_201_CREATED)
+        except Exception as ex:
+            return Response({"status": "failed", "message": str(ex), "parameters": self.generate_parameters(request)},
+                            status=status.HTTP_406_NOT_ACCEPTABLE)
 
     def get_permissions(self):
         self.permission_classes = [IsAuthenticated]
         return super(ProductAPI, self).get_permissions()
 
+
+class CategoryAPI(ViewSetBase):
+    def create_category(self, request):
+        parameters = self.generate_parameters(request)
+        structured_category = CategoryDataStructure(**parameters)
+        try:
+            new_category = Category.objects.create(**structured_category.__dict__)
+            new_category.save()
+            return Response(CategorySerializer(new_category, many=False, read_only=True).data, status=status.HTTP_201_CREATED)
+        except Exception as ex:
+            return Response({"status": "failed", "message": str(ex), "parameters": self.generate_parameters(request)},
+                            status=status.HTTP_406_NOT_ACCEPTABLE)
+
     @staticmethod
-    def generate_parameters(request):
-        """
-        this method is being used to combine all post, data and get parameters to make http method changes easier
-        """
-        get_dictionary = dict()
-        for get_parameter in request.GET.keys():
-            get_dictionary[get_parameter] = request.GET.get(get_parameter)
-        return {**get_dictionary, **request.data}
+    def get_categories(request):
+        categories = Category.objects.all()
+        return Response(CategorySerializer(categories, many=True, read_only=True).data)

@@ -1,8 +1,7 @@
 from django.urls import path, re_path
-from user.views import UserAPI
+from store.views import ProductAPI, CategoryAPI
 
 urlpatterns = [
-    path('register/', UserAPI.as_view({"post": "register"})),
-
+    path('categories/', CategoryAPI.as_view({"get": "get_categories"})),
 
 ]
