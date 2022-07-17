@@ -44,6 +44,7 @@ class Coupon(models.Model):
 class ProductOrder(models.Model):
     user = models.ForeignKey(User, on_delete=models.CASCADE)
     product = models.ForeignKey(Product, on_delete=models.CASCADE)
+    data = models.JSONField(blank=True, null=True)
     quantity = models.SmallIntegerField(default=1)
     created = models.DateTimeField(auto_now_add=True)
 
@@ -69,6 +70,7 @@ class Order(models.Model):
     status = models.CharField(max_length=100, default='pending')
     coupon = models.ForeignKey(Coupon, on_delete=models.SET_NULL, null=True, blank=True)
     address = models.ForeignKey(Address, on_delete=models.SET_NULL, null=True, blank=True)
+    data = models.JSONField(blank=True, null=True)
 
     def __str__(self):
         return self.user.username
