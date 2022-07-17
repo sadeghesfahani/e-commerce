@@ -42,7 +42,7 @@ class CategorySerializer(serializers.ModelSerializer):
 class TemporaryBasketSerializer(serializers.ModelSerializer):
     class Meta:
         model = TemporaryBasket
-        fields = '__all__'
+        exclude = ('user',)
 
 
 class CouponSerializer(serializers.ModelSerializer):

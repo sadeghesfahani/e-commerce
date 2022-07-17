@@ -163,7 +163,9 @@ class OrderAPI(ViewSetBase):
     def update_temporary_basket(self, request):
         parameters = self.generate_parameters(request)
         temporary_basket = TemporaryBasket.objects.get_or_create(user=request.user)[0]
-        temporary_basket.order = parameters.get("data")
+        temporary_basket.data = parameters.get("data")
+        temporary_basket.save()
+        return Response(TemporaryBasketSerializer(temporary_basket, many=False, read_only=True).data)
 
     @staticmethod
     def get_addresses(request):

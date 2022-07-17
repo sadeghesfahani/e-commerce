@@ -1,5 +1,5 @@
 from django.urls import path, re_path
-from store.views import ProductAPI, CategoryAPI, CouponAPI
+from store.views import ProductAPI, CategoryAPI, CouponAPI, OrderAPI
 
 urlpatterns = [
     path('categories/', CategoryAPI.as_view({"get": "get_categories"})),
@@ -11,4 +11,5 @@ urlpatterns = [
     path('coupon', CouponAPI.as_view({"get": "get_coupons", "post": "create_coupon"})),
     path('coupon/validate', CouponAPI.as_view({"post": "validate"})),
     path('coupon/<int:coupon_id>', CouponAPI.as_view({"put": "edit_coupon"})),
+    path('temporary_basket', OrderAPI.as_view({"get": "get_temporary_basket", "put": "update_temporary_basket"})),
 ]
