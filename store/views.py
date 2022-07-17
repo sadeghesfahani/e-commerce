@@ -153,20 +153,7 @@ class CouponAPI(ViewSetBase):
             raise PermissionDenied
 
 
-class OrderAPI(ViewSetBase):
-
-    @staticmethod
-    def get_temporary_basket(request):
-        temporary_basket = TemporaryBasket.objects.get_or_create(user=request.user)[0]
-        return Response(TemporaryBasketSerializer(temporary_basket, many=False, read_only=True).data)
-
-    def update_temporary_basket(self, request):
-        parameters = self.generate_parameters(request)
-        temporary_basket = TemporaryBasket.objects.get_or_create(user=request.user)[0]
-        temporary_basket.data = parameters.get("data")
-        temporary_basket.save()
-        return Response(TemporaryBasketSerializer(temporary_basket, many=False, read_only=True).data)
-
+class AddressAPI(ViewSetBase):
     @staticmethod
     def get_addresses(request):
         addresses = Address.objects.filter(user=request.user)
@@ -199,6 +186,21 @@ class OrderAPI(ViewSetBase):
             return Response({"status": "success", "message": "Address deleted"}, status=status.HTTP_202_ACCEPTED)
         except Exception as ex:
             return Response({"status": "failed", "message": str(ex)}, status=status.HTTP_406_NOT_ACCEPTABLE)
+
+
+class OrderAPI(ViewSetBase):
+
+    @staticmethod
+    def get_temporary_basket(request):
+        temporary_basket = TemporaryBasket.objects.get_or_create(user=request.user)[0]
+        return Response(TemporaryBasketSerializer(temporary_basket, many=False, read_only=True).data)
+
+    def update_temporary_basket(self, request):
+        parameters = self.generate_parameters(request)
+        temporary_basket = TemporaryBasket.objects.get_or_create(user=request.user)[0]
+        temporary_basket.data = parameters.get("data")
+        temporary_basket.save()
+        return Response(TemporaryBasketSerializer(temporary_basket, many=False, read_only=True).data)
 
     def submit_order(self, request):
         pass
