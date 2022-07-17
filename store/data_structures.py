@@ -35,7 +35,18 @@ class CategoryDataStructure:
     def _set_parameter(self, parameter, value):
         if value is not None:
             if parameter == "parent":
-                print("----------------------------------------------------------------",value)
+                print("----------------------------------------------------------------", value)
                 self.parent = get_object_or_404(Category, id=value)
             else:
                 self.__dict__[parameter] = value
+
+
+class AddressDataStructure:
+    def __init__(self, **kwargs):
+        self._set_parameter("name", kwargs.get("name"))
+        self._set_parameter("phone", kwargs.get("phone"))
+        self._set_parameter("address", kwargs.get("address"))
+
+    def _set_parameter(self, parameter, value):
+        if value is not None:
+            self.__dict__[parameter] = value

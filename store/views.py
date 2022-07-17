@@ -1,14 +1,12 @@
 from django.http import Http404
-from django.shortcuts import render, get_object_or_404
-
-# Create your views here.
-from rest_framework import viewsets, status
+from django.shortcuts import get_object_or_404
+from rest_framework import status
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
 
-from store.data_structures import ProductDataStructure, CategoryDataStructure
-from store.models import Product, Category
-from store.serializers import ProductSerializer, CategorySerializer
+from store.data_structures import ProductDataStructure, CategoryDataStructure, AddressDataStructure
+from store.models import Product, Category, TemporaryBasket, Coupon, Address
+from store.serializers import ProductSerializer, CategorySerializer, TemporaryBasketSerializer, CouponSerializer, AddressSerializer
 from store.viewset_base import ViewSetBase
 
 
@@ -25,7 +23,8 @@ class ProductAPI(ViewSetBase):
             return Response({"status": "failed", "message": str(ex), "parameters": self.generate_parameters(request)},
                             status=status.HTTP_406_NOT_ACCEPTABLE)
 
-    def delete_product(self,request,product_id):
+    @staticmethod
+    def delete_product(request, product_id):
         try:
             product = get_object_or_404(Product, id=product_id)
             product.delete()
@@ -109,3 +108,63 @@ class CategoryAPI(ViewSetBase):
             return Response({"status": "success", "message": "Category deleted"}, status=status.HTTP_202_ACCEPTED)
         except Exception as ex:
             return Response({"status": "failed", "message": str(ex)}, status=status.HTTP_406_NOT_ACCEPTABLE)
+
+
+class CouponAPI(ViewSetBase):
+    def validate(self, request):
+        parameters = self.generate_parameters(request)
+        code = parameters.get("code")
+        if code:
+            coupon = get_object_or_404(Coupon, code=code)
+            return Response(CouponSerializer(coupon, many=False, read_only=True).data)
+        else:
+            return Response({"status": "failed", "message": "Code is required"}, status=status.HTTP_406_NOT_ACCEPTABLE)
+
+
+class OrderAPI(ViewSetBase):
+
+    @staticmethod
+    def get_temporary_basket(request):
+        temporary_basket = TemporaryBasket.objects.get_or_create(user=request.user)[0]
+        return Response(TemporaryBasketSerializer(temporary_basket, many=False, read_only=True).data)
+
+    def update_temporary_basket(self, request):
+        parameters = self.generate_parameters(request)
+        temporary_basket = TemporaryBasket.objects.get_or_create(user=request.user)[0]
+        temporary_basket.order = parameters.get("data")
+
+    @staticmethod
+    def get_addresses(request):
+        addresses = Address.objects.filter(user=request.user)
+        return Response(AddressSerializer(addresses, many=True, read_only=True).data)
+
+    def create_address(self, request):
+        parameters = self.generate_parameters(request)
+        structured_address = AddressDataStructure(**parameters)
+        newly_added_address = Address.objects.create(user=request.user, **structured_address.__dict__)
+        newly_added_address.save()
+        return Response(AddressSerializer(newly_added_address, many=False, read_only=True).data, status=status.HTTP_201_CREATED)
+
+    def edit_address(self, request, address_id):
+        parameters = self.generate_parameters(request)
+        structured_address = AddressDataStructure(**parameters)
+        address = get_object_or_404(Address, id=address_id)
+        try:
+            address.__dict__.update(**structured_address.__dict__)
+            address.save()
+            return Response(AddressSerializer(address, many=False, read_only=True).data, status=status.HTTP_200_OK)
+        except Exception as ex:
+            return Response({"status": "failed", "message": str(ex), "parameters": self.generate_parameters(request)},
+                            status=status.HTTP_406_NOT_ACCEPTABLE)
+
+    @staticmethod
+    def delete_address(request, address_id):
+        address = get_object_or_404(Address, id=address_id)
+        try:
+            address.delete()
+            return Response({"status": "success", "message": "Address deleted"}, status=status.HTTP_202_ACCEPTED)
+        except Exception as ex:
+            return Response({"status": "failed", "message": str(ex)}, status=status.HTTP_406_NOT_ACCEPTABLE)
+
+    def submit_order(self, request):
+        pass

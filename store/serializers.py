@@ -1,6 +1,7 @@
+from attr.filters import exclude
 from rest_framework import serializers
 
-from store.models import Product, Category
+from store.models import Product, Category, TemporaryBasket, Coupon, Address
 
 
 class ProductSerializer(serializers.ModelSerializer):
@@ -36,3 +37,21 @@ class CategorySerializer(serializers.ModelSerializer):
             return SimpleCategorySerializer(Category.objects.filter(parent=obj), many=True).data
         else:
             return None
+
+
+class TemporaryBasketSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = TemporaryBasket
+        fields = '__all__'
+
+
+class CouponSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Coupon
+        fields = '__all__'
+
+
+class AddressSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Address
+        exclude = ('user',)

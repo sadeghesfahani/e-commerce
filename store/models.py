@@ -27,7 +27,6 @@ class Product(models.Model):
     extra_information = models.JSONField(blank=True, null=True)
     remaining = models.SmallIntegerField(default=0)
 
-
     def __str__(self):
         return self.name
 
@@ -42,7 +41,7 @@ class Coupon(models.Model):
         return self.code
 
 
-class Basket(models.Model):
+class ProductOrder(models.Model):
     user = models.ForeignKey(User, on_delete=models.CASCADE)
     product = models.ForeignKey(Product, on_delete=models.CASCADE)
     quantity = models.SmallIntegerField(default=1)
@@ -53,7 +52,7 @@ class Basket(models.Model):
 
 
 class Address(models.Model):
-    user = models.ForeignKey(User, on_delete=models.CASCADE,related_name="user_address")
+    user = models.ForeignKey(User, on_delete=models.CASCADE, related_name="user_address")
     name = models.CharField(max_length=100)
     phone = models.CharField(max_length=100, blank=True, null=True)
     address = models.CharField(max_length=100)
@@ -64,7 +63,7 @@ class Address(models.Model):
 
 class Order(models.Model):
     user = models.ForeignKey(User, on_delete=models.CASCADE)
-    products = models.ManyToManyField(Basket)
+    products = models.ManyToManyField(ProductOrder)
     created = models.DateTimeField(auto_now_add=True)
     status = models.CharField(max_length=100, default='pending')
     coupon = models.ForeignKey(Coupon, on_delete=models.SET_NULL, null=True, blank=True)
@@ -85,3 +84,8 @@ class Order(models.Model):
             else:
                 total = total - self.coupon.discount
         return total
+
+
+class TemporaryBasket(models.Model):
+    user = models.ForeignKey(User, on_delete=models.CASCADE)
+    data = models.JSONField(blank=True, null=True)
