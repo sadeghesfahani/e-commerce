@@ -1,10 +1,11 @@
 from django.http import Http404
 from django.shortcuts import get_object_or_404
 from rest_framework import status
+from rest_framework.exceptions import PermissionDenied
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
 
-from store.data_structures import ProductDataStructure, CategoryDataStructure, AddressDataStructure
+from store.data_structures import ProductDataStructure, CategoryDataStructure, AddressDataStructure, CouponDataStructure
 from store.models import Product, Category, TemporaryBasket, Coupon, Address
 from store.serializers import ProductSerializer, CategorySerializer, TemporaryBasketSerializer, CouponSerializer, AddressSerializer
 from store.viewset_base import ViewSetBase
@@ -118,7 +119,38 @@ class CouponAPI(ViewSetBase):
             coupon = get_object_or_404(Coupon, code=code)
             return Response(CouponSerializer(coupon, many=False, read_only=True).data)
         else:
-            return Response({"status": "failed", "message": "Code is required"}, status=status.HTTP_406_NOT_ACCEPTABLE)
+            return Response({"status": "failed", "message": "Code is required"}, status=status.HTTP_400_BAD_REQUEST)
+
+    def create_coupon(self, request):
+        parameters = self.generate_parameters(request)
+        structured_coupon = CouponDataStructure(**parameters)
+        try:
+            new_coupon = Coupon.objects.create(**structured_coupon.__dict__)
+            new_coupon.save()
+            return Response(CouponSerializer(new_coupon, many=False, read_only=True).data, status=status.HTTP_201_CREATED)
+        except Exception as ex:
+            return Response({"status": "failed", "message": str(ex), "parameters": self.generate_parameters(request)},
+                            status=status.HTTP_406_NOT_ACCEPTABLE)
+
+    def edit_coupon(self, request, coupon_id):
+        parameters = self.generate_parameters(request)
+        structured_coupon = CouponDataStructure(**parameters)
+        coupon = get_object_or_404(Coupon, id=coupon_id)
+        try:
+            coupon.__dict__.update(**structured_coupon.__dict__)
+            coupon.save()
+            return Response(CouponSerializer(coupon, many=False, read_only=True).data, status=status.HTTP_200_OK)
+        except Exception as ex:
+            return Response({"status": "failed", "message": str(ex), "parameters": self.generate_parameters(request)},
+                            status=status.HTTP_406_NOT_ACCEPTABLE)
+
+    @staticmethod
+    def get_coupons(request):
+        if request.user.is_staff or request.user.is_superuser:
+            coupons = Coupon.objects.all()
+            return Response(CouponSerializer(coupons, many=True, read_only=True).data)
+        else:
+            raise PermissionDenied
 
 
 class OrderAPI(ViewSetBase):
@@ -152,7 +184,7 @@ class OrderAPI(ViewSetBase):
         try:
             address.__dict__.update(**structured_address.__dict__)
             address.save()
-            return Response(AddressSerializer(address, many=False, read_only=True).data, status=status.HTTP_200_OK)
+            return Response(AddressSerializer(address, many=False, read_only=True).data, status=status.HTTP_202_ACCEPTED)
         except Exception as ex:
             return Response({"status": "failed", "message": str(ex), "parameters": self.generate_parameters(request)},
                             status=status.HTTP_406_NOT_ACCEPTABLE)

@@ -32,7 +32,7 @@ class Product(models.Model):
 
 
 class Coupon(models.Model):
-    code = models.CharField(max_length=100)
+    code = models.CharField(max_length=100, unique=True)
     discount = models.DecimalField(max_digits=20, decimal_places=2)
     discount_type = models.CharField(max_length=100)  # percent or amount
     active = models.BooleanField(default=True)
