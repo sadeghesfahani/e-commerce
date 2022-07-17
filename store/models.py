@@ -56,6 +56,7 @@ class Address(models.Model):
     name = models.CharField(max_length=100)
     phone = models.CharField(max_length=100, blank=True, null=True)
     address = models.CharField(max_length=100)
+    coordinates = models.CharField(max_length=100, blank=True, null=True)
 
     def __str__(self):
         return self.name
