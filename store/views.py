@@ -25,6 +25,14 @@ class ProductAPI(ViewSetBase):
             return Response({"status": "failed", "message": str(ex), "parameters": self.generate_parameters(request)},
                             status=status.HTTP_406_NOT_ACCEPTABLE)
 
+    def delete_product(self,request,product_id):
+        try:
+            product = get_object_or_404(Product, id=product_id)
+            product.delete()
+            return Response({"status": "success", "message": "Product deleted"}, status=status.HTTP_202_ACCEPTED)
+        except Exception as ex:
+            return Response({"status": "failed", "message": str(ex)}, status=status.HTTP_406_NOT_ACCEPTABLE)
+
     @staticmethod
     def get_all_products(request):
         products = Product.objects.all()
@@ -92,3 +100,12 @@ class CategoryAPI(ViewSetBase):
     def get_categories(request):
         categories = Category.objects.all()
         return Response(CategorySerializer(categories, many=True, read_only=True).data)
+
+    @staticmethod
+    def delete_category(request, category_id):
+        category = get_object_or_404(Category, id=category_id)
+        try:
+            category.delete()
+            return Response({"status": "success", "message": "Category deleted"}, status=status.HTTP_202_ACCEPTED)
+        except Exception as ex:
+            return Response({"status": "failed", "message": str(ex)}, status=status.HTTP_406_NOT_ACCEPTABLE)
