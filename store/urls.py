@@ -14,4 +14,6 @@ urlpatterns = [
     path('address/', AddressAPI.as_view({"get": "get_addresses", "post": "create_address"})),
     path('address/<int:address_id>', AddressAPI.as_view({"put": "edit_address", "delete": "delete_address"})),
     path('temporary_basket', OrderAPI.as_view({"get": "get_temporary_basket", "put": "update_temporary_basket"})),
+    path('order', OrderAPI.as_view({"post": "submit_order", "get": "get_orders"})),
+    path('order/<int:order_id>', OrderAPI.as_view({"put": "edit_order", "delete": "delete_order"})),
 ]

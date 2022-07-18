@@ -1,7 +1,7 @@
 from attr.filters import exclude
 from rest_framework import serializers
 
-from store.models import Product, Category, TemporaryBasket, Coupon, Address
+from store.models import Product, Category, TemporaryBasket, Coupon, Address, Order, ProductOrder
 
 
 class ProductSerializer(serializers.ModelSerializer):
@@ -55,3 +55,22 @@ class AddressSerializer(serializers.ModelSerializer):
     class Meta:
         model = Address
         exclude = ('user',)
+
+
+class ProductOrderSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = ProductOrder
+        exclude = ('user',)
+
+
+class OrderSerializer(serializers.ModelSerializer):
+    products = ProductOrderSerializer(many=True, read_only=True)
+    total = serializers.SerializerMethodField()
+
+    class Meta:
+        model = Order
+        fields = '__all__'
+
+    @staticmethod
+    def get_total(obj):
+        return obj.total

@@ -6,8 +6,8 @@ from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
 
 from store.data_structures import ProductDataStructure, CategoryDataStructure, AddressDataStructure, CouponDataStructure
-from store.models import Product, Category, TemporaryBasket, Coupon, Address
-from store.serializers import ProductSerializer, CategorySerializer, TemporaryBasketSerializer, CouponSerializer, AddressSerializer
+from store.models import Product, Category, TemporaryBasket, Coupon, Address, ProductOrder, Order
+from store.serializers import ProductSerializer, CategorySerializer, TemporaryBasketSerializer, CouponSerializer, AddressSerializer, OrderSerializer
 from store.viewset_base import ViewSetBase
 
 
@@ -203,4 +203,80 @@ class OrderAPI(ViewSetBase):
         return Response(TemporaryBasketSerializer(temporary_basket, many=False, read_only=True).data)
 
     def submit_order(self, request):
-        pass
+        parameters = self.generate_parameters(request)
+        address = get_object_or_404(Address, id=parameters.get("address"))
+        products = parameters.get("products")
+        coupon_code = parameters.get("coupon")
+        coupon_object = get_object_or_404(Coupon, code=coupon_code) if coupon_code else None
+        data = parameters.get('data')
+        order = Order.objects.create(user=request.user, address=address, coupon=coupon_object, data=data)
+
+        for product in products:
+            product_id = product.get("product")
+            quantity = product.get("quantity")
+            product_object = get_object_or_404(Product, id=product_id)
+            product_object.remaining -= quantity
+            product_object.save()
+            data = product.get('data')
+            product_order = ProductOrder.objects.create(product=product_object, quantity=quantity, data=data, user=request.user)
+            order.products.add(product_order)
+        order.save()
+        return Response(OrderSerializer(order, many=False, read_only=True).data)
+
+    @staticmethod
+    def get_orders(request):
+        orders = Order.objects.filter(user=request.user)
+        return Response(OrderSerializer(orders, many=True, read_only=True).data)
+
+    def edit_order(self, request, order_id):
+        parameters = self.generate_parameters(request)
+        order = get_object_or_404(Order, id=order_id)
+        address = get_object_or_404(Address, id=parameters.get("address"))
+        coupon_code = parameters.get("coupon")
+        coupon_object = get_object_or_404(Coupon, code=coupon_code) if coupon_code is not None else None
+        data = parameters.get('data')
+        order.address = address
+        order.coupon = coupon_object
+        order.data = data
+        products = parameters.get("products")
+        order_status = parameters.get("status")
+        order.status = order_status
+        print("here")
+        for product in products:
+            order_id = product.get("id")
+            product_id = product.get("product")
+            product_object = get_object_or_404(Product, id=product_id)
+            if order_id:
+                product_order = get_object_or_404(ProductOrder, id=order_id)
+                difference = product.get("quantity") - product_order.quantity
+                if difference > 0:
+                    product_object.remaining -= difference
+                    product_object.save()
+                elif difference < 0:
+                    product_object.remaining += abs(difference)
+                    product_object.save()
+
+                product_order.quantity = product.get("quantity")
+                product_order.data = product.get("data")
+                product_order.save()
+            else:
+                product_object.remaining -= product.get("quantity")
+                product_order = ProductOrder.objects.create(product=product_object, quantity=product.get("quantity"), data=product.get("data"),
+                                                            user=request.user)
+                product_object.save()
+                order.products.add(product_order)
+        order.save()
+        return Response(OrderSerializer(order, many=False, read_only=True).data)
+
+    @staticmethod
+    def delete_order(request, order_id):
+        order = get_object_or_404(Order, id=order_id)
+        try:
+            for product_order in order.products.all():
+                product_order.product.remaining += product_order.quantity
+                product_order.product.save()
+                product_order.delete()
+            order.delete()
+            return Response({"status": "success", "message": "Order deleted"}, status=status.HTTP_202_ACCEPTED)
+        except Exception as ex:
+            return Response({"status": "failed", "message": str(ex)}, status=status.HTTP_406_NOT_ACCEPTABLE)
