@@ -269,7 +269,8 @@ class OrderAPI(ViewSetBase):
         all_product_order_ids = [product_order.id for product_order in order.products.all()]
         for product in products:
             order_id = product.get("id")
-            all_product_order_ids.remove(order_id)
+            if order_id is not None:
+                all_product_order_ids.remove(order_id)
             product_id = product.get("product")
             product_object = get_object_or_404(Product, id=product_id)
             if order_id:
@@ -295,7 +296,7 @@ class OrderAPI(ViewSetBase):
         for product_order_id in all_product_order_ids:
             product_order = get_object_or_404(ProductOrder, id=product_order_id)
             order.products.remove(product_order)
-            product_order.remove()
+            product_order.delete()
         order.save()
         return Response(OrderSerializer(order, many=False, read_only=True).data)
 
