@@ -9,6 +9,7 @@ urlpatterns = [
     path('product/id/<int:product_id>', ProductAPI.as_view({"get": "get_product_by_id", "put": "edit_product_id", "delete": "delete_product_id"})),
     path('product/slug/<slug:product_slug>',
          ProductAPI.as_view({"get": "get_product_by_slug", "put": "edit_product_slug", "delete": "delete_product_slug"})),
+    path('product/featured', ProductAPI.as_view({"get": "create_featured_product"})),
     path('product/category/id/<int:category_id>', ProductAPI.as_view({"get": "get_category_products_id"})),
     path('product/category/slug/<slug:category_slug>', ProductAPI.as_view({"get": "get_category_products_slug"})),
     path('product/search/', ProductAPI.as_view({"get": "search"})),

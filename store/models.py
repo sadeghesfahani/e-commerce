@@ -25,6 +25,7 @@ class Product(models.Model):
     attributes = models.JSONField(blank=True, null=True)
     options = models.JSONField(blank=True, null=True)
     extra_information = models.JSONField(blank=True, null=True)
+    featured = models.BooleanField(default=False)
     remaining = models.SmallIntegerField(default=0)
 
     def __str__(self):

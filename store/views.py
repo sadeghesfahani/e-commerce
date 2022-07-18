@@ -88,6 +88,10 @@ class ProductAPI(ViewSetBase):
         products = products_by_description | products_by_name
         return Response(ProductSerializer(products, many=True, read_only=True).data)
 
+    @staticmethod
+    def create_featured_product(request):
+        return Response(ProductSerializer(Product.objects.filter(featured=True), many=True, read_only=True).data)
+
 
 class CategoryAPI(ViewSetBase):
     def create_category(self, request):
