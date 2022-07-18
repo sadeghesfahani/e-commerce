@@ -52,12 +52,11 @@ class AddressDataStructure:
             self.__dict__[parameter] = value
 
 
-
 class CouponDataStructure:
     def __init__(self, **kwargs):
         self._set_parameter("code", kwargs.get("code"))
         self._set_parameter("discount", kwargs.get("discount"))
-        self._set_parameter("discount_type", kwargs.get("discount_type"))
+        self._set_parameter("discount_type", kwargs.get("discountType"))
         self._set_parameter("active", kwargs.get("active"))
 
     def _set_parameter(self, parameter, value):
