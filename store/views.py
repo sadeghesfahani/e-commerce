@@ -69,6 +69,13 @@ class ProductAPI(ViewSetBase):
         self.permission_classes = [IsAuthenticated]
         return super(ProductAPI, self).get_permissions()
 
+    def search(self, request):
+        parameters = self.generate_parameters(request)
+        products_by_name = Product.objects.filter(name__icontains=parameters.get('search'))
+        products_by_description = Product.objects.filter(description__icontains=parameters.get('search'))
+        products = products_by_description | products_by_name
+        return Response(ProductSerializer(products, many=True, read_only=True).data)
+
 
 class CategoryAPI(ViewSetBase):
     def create_category(self, request):
