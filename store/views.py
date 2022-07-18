@@ -5,8 +5,10 @@ from rest_framework.exceptions import PermissionDenied
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
 
+from store.category_manager import CategoryManager
 from store.data_structures import ProductDataStructure, CategoryDataStructure, AddressDataStructure, CouponDataStructure
 from store.models import Product, Category, TemporaryBasket, Coupon, Address, ProductOrder, Order
+from store.product_manager import ProductManager
 from store.serializers import ProductSerializer, CategorySerializer, TemporaryBasketSerializer, CouponSerializer, AddressSerializer, OrderSerializer
 from store.viewset_base import ViewSetBase
 
@@ -25,13 +27,14 @@ class ProductAPI(ViewSetBase):
                             status=status.HTTP_406_NOT_ACCEPTABLE)
 
     @staticmethod
-    def delete_product(request, product_id):
-        try:
-            product = get_object_or_404(Product, id=product_id)
-            product.delete()
-            return Response({"status": "success", "message": "Product deleted"}, status=status.HTTP_202_ACCEPTED)
-        except Exception as ex:
-            return Response({"status": "failed", "message": str(ex)}, status=status.HTTP_406_NOT_ACCEPTABLE)
+    def delete_product_id(request, product_id):
+        product = get_object_or_404(Product, id=product_id)
+        return ProductManager(product).delete()
+
+    @staticmethod
+    def delete_product_slug(request, product_slug):
+        product = get_object_or_404(Product, slug=product_slug)
+        return ProductManager(product).delete()
 
     @staticmethod
     def get_all_products(request):
@@ -39,9 +42,17 @@ class ProductAPI(ViewSetBase):
         return Response(ProductSerializer(products, many=True, read_only=True).data)
 
     @staticmethod
-    def get_category_products(request, category_id):
+    def get_category_products_id(request, category_id):
         if Category.objects.filter(id=category_id).exists():
             products = Product.objects.filter(category_id=category_id)
+            return Response(ProductSerializer(products, many=True, read_only=True).data)
+        else:
+            raise Http404
+
+    @staticmethod
+    def get_category_products_slug(request, category_slug):
+        if Category.objects.filter(slug=category_slug).exists():
+            products = Product.objects.filter(category__slug=category_slug)
             return Response(ProductSerializer(products, many=True, read_only=True).data)
         else:
             raise Http404
@@ -51,19 +62,20 @@ class ProductAPI(ViewSetBase):
         product = get_object_or_404(Product, id=product_id)
         return Response(ProductSerializer(product, many=False, read_only=True).data)
 
-    def edit_product(self, request, product_id):
+    @staticmethod
+    def get_product_by_slug(request, product_slug):
+        product = get_object_or_404(Product, slug=product_slug)
+        return Response(ProductSerializer(product, many=False, read_only=True).data)
+
+    def edit_product_id(self, request, product_id):
         parameters = self.generate_parameters(request)
-        structured_product = ProductDataStructure(**parameters)
-        try:
-            product = get_object_or_404(Product, id=product_id)
-            product.__dict__.update(**structured_product.__dict__)
-            if structured_product.__dict__.get('category'):
-                product.category = get_object_or_404(Category, id=structured_product.__dict__.get("category").id)
-            product.save()
-            return Response(ProductSerializer(product, many=False, read_only=True).data, status=status.HTTP_200_OK)
-        except Exception as ex:
-            return Response({"status": "failed", "message": str(ex), "parameters": self.generate_parameters(request)},
-                            status=status.HTTP_406_NOT_ACCEPTABLE)
+        product = get_object_or_404(Product, id=product_id)
+        return ProductManager(product).edit(parameters)
+
+    def edit_product_slug(self, request, product_slug):
+        parameters = self.generate_parameters(request)
+        product = get_object_or_404(Product, slug=product_slug)
+        return ProductManager(product).edit(parameters)
 
     def get_permissions(self):
         self.permission_classes = [IsAuthenticated]
@@ -89,19 +101,15 @@ class CategoryAPI(ViewSetBase):
             return Response({"status": "failed", "message": str(ex), "parameters": self.generate_parameters(request)},
                             status=status.HTTP_406_NOT_ACCEPTABLE)
 
-    def edit_category(self, request, category_id):
+    def edit_category_id(self, request, category_id):
         parameters = self.generate_parameters(request)
-        structured_category = CategoryDataStructure(**parameters)
         category = get_object_or_404(Category, id=category_id)
-        try:
-            category.__dict__.update(**structured_category.__dict__)
-            if structured_category.__dict__.get("parent"):
-                category.parent = get_object_or_404(Category, id=structured_category.__dict__.get("parent").id)
-            category.save()
-            return Response(CategorySerializer(category, many=False, read_only=True).data, status=status.HTTP_200_OK)
-        except Exception as ex:
-            return Response({"status": "failed", "message": str(ex), "parameters": self.generate_parameters(request)},
-                            status=status.HTTP_406_NOT_ACCEPTABLE)
+        return CategoryManager(category).edit(parameters)
+
+    def edit_category_slug(self, request, category_slug):
+        parameters = self.generate_parameters(request)
+        category = get_object_or_404(Category, slug=category_slug)
+        return CategoryManager(category).edit(parameters)
 
     @staticmethod
     def get_categories(request):
@@ -109,13 +117,14 @@ class CategoryAPI(ViewSetBase):
         return Response(CategorySerializer(categories, many=True, read_only=True).data)
 
     @staticmethod
-    def delete_category(request, category_id):
+    def delete_category_id(request, category_id):
         category = get_object_or_404(Category, id=category_id)
-        try:
-            category.delete()
-            return Response({"status": "success", "message": "Category deleted"}, status=status.HTTP_202_ACCEPTED)
-        except Exception as ex:
-            return Response({"status": "failed", "message": str(ex)}, status=status.HTTP_406_NOT_ACCEPTABLE)
+        return CategoryManager(category).delete()
+
+    @staticmethod
+    def delete_category_slug(request, category_slug):
+        category = get_object_or_404(Category, slug=category_slug)
+        return CategoryManager(category).delete()
 
 
 class CouponAPI(ViewSetBase):
