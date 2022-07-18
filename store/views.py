@@ -130,6 +130,11 @@ class CategoryAPI(ViewSetBase):
         category = get_object_or_404(Category, slug=category_slug)
         return CategoryManager(category).delete()
 
+    @staticmethod
+    def get_featured_categories(request):
+        categories = Category.objects.filter(featured=True)
+        return Response(CategorySerializer(categories, many=True, read_only=True).data)
+
 
 class CouponAPI(ViewSetBase):
     def validate(self, request):
