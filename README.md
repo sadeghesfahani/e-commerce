@@ -14,11 +14,11 @@
 ### 2. اجرا بک اند
 به منظور اجرا بک اند در روت پروژه رفته و برای ویندوز دستور
 ```
-docker-compose up
+docker-compose up --build
 ````
 و برای مک و لینوکس دستور
 ```
-sudo docker-compose up
+sudo docker-compose up --build
 ```
 را اجرا نمایید و پس از اتمام دستور بک اند شما بر روی پورت ۸۰۰۰ قابل دسترس است
 
