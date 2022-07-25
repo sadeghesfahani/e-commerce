@@ -17,6 +17,7 @@ class SmoothRun:
     def __init__(self, problem, deploy=False, root="/usr/src/app"):
         if deploy:
             root = "/usr/src/app"
+        self.root = root
         self.problem = False
         self.deploy = deploy
         self.is_migrate_working()
@@ -30,6 +31,12 @@ class SmoothRun:
                 print("\n\n =====>  no issue has been found")
             else:
                 self.problem = True
+
+                try:
+                    os.system(f"cd {self.root} && python3 manage.py dumpdata > backup.json")
+                except:
+                    os.system(f"cd {self.root} && python3 manage.py dumpdata store > backup.json")
+
                 print("\n\n =====>  makemigrations failed, deleting migration files")
                 self.delete_migration_files(root)
                 print("\n\n =====>  trying makemigrations")
@@ -125,9 +132,15 @@ class SmoothRun:
 
     def run_server(self):
         if self.problem:
+            execute_from_command_line(["manage.py", "loaddata", "backup.json"])
             print("\n\n\n\n ****Happy to save you time**** \n\n\n")
 
         # print("\n\n =====>  from here, there is nothing to do with database\n")
+
+        # sina = execute_from_command_line(["django-admin", "dumpdata","store > backup.json" ])
+        # print(sina)
+        os.system(f"cd {self.root} && python3 manage.py loaddata ./backup.json")
+        execute_from_command_line(["manage.py", "initadmin"])
         execute_from_command_line(["manage.py", "runserver", "0.0.0.0:8000"])
 
 
