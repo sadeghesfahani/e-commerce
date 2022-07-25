@@ -2,7 +2,7 @@ from django.http import Http404
 from django.shortcuts import get_object_or_404
 from rest_framework import status
 from rest_framework.exceptions import PermissionDenied
-from rest_framework.permissions import IsAuthenticated
+from rest_framework.permissions import IsAuthenticated, IsAdminUser, AllowAny
 from rest_framework.response import Response
 
 from store.category_manager import CategoryManager
@@ -78,7 +78,10 @@ class ProductAPI(ViewSetBase):
         return ProductManager(product).edit(parameters)
 
     def get_permissions(self):
-        self.permission_classes = [IsAuthenticated]
+        if self.action == "create_product" or self.action == "edit_product_id" or self.action == "edit_product_slug" or self.action == "delete_product_id" or self.action == "delete_product_slug":
+            self.permission_classes = [IsAdminUser]
+        else:
+            self.permission_classes = [AllowAny]
         return super(ProductAPI, self).get_permissions()
 
     def search(self, request):
@@ -135,6 +138,13 @@ class CategoryAPI(ViewSetBase):
         categories = Category.objects.filter(featured=True)
         return Response(CategorySerializer(categories, many=True, read_only=True).data)
 
+    def get_permissions(self):
+        if self.action == "create_category" or self.action == "edit_category_id" or self.action == "edit_category_slug" or self.action == "delete_category_id" or self.action == "delete_category_slug":
+            self.permission_classes = [IsAdminUser]
+        else:
+            self.permission_classes = [AllowAny]
+        return super(CategoryAPI, self).get_permissions()
+
 
 class CouponAPI(ViewSetBase):
     def validate(self, request):
@@ -177,6 +187,13 @@ class CouponAPI(ViewSetBase):
         else:
             raise PermissionDenied
 
+    def get_permissions(self):
+        if self.action == "create_coupon" or self.action == "edit_coupon":
+            self.permission_classes = [IsAdminUser]
+        else:
+            self.permission_classes = [AllowAny]
+        return super(CouponAPI, self).get_permissions()
+
 
 class AddressAPI(ViewSetBase):
     @staticmethod
@@ -211,6 +228,10 @@ class AddressAPI(ViewSetBase):
             return Response({"status": "success", "message": "Address deleted"}, status=status.HTTP_202_ACCEPTED)
         except Exception as ex:
             return Response({"status": "failed", "message": str(ex)}, status=status.HTTP_406_NOT_ACCEPTABLE)
+
+    def get_permissions(self):
+        self.permission_classes = [IsAuthenticated]
+        return super(AddressAPI, self).get_permissions()
 
 
 class OrderAPI(ViewSetBase):
@@ -312,3 +333,7 @@ class OrderAPI(ViewSetBase):
             return Response({"status": "success", "message": "Order deleted"}, status=status.HTTP_202_ACCEPTED)
         except Exception as ex:
             return Response({"status": "failed", "message": str(ex)}, status=status.HTTP_406_NOT_ACCEPTABLE)
+
+    def get_permissions(self):
+        self.permission_classes = [IsAuthenticated]
+        return super(OrderAPI, self).get_permissions()
