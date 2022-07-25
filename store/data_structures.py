@@ -31,6 +31,7 @@ class CategoryDataStructure:
         self._set_parameter("name", kwargs.get("name"))
         self._set_parameter("parent", kwargs.get("parent"))
         self._set_parameter("slug", kwargs.get("slug"))
+        self._set_parameter("featured", kwargs.get("featured"))
 
     def _set_parameter(self, parameter, value):
         if value is not None:
