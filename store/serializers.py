@@ -1,7 +1,7 @@
 from attr.filters import exclude
 from rest_framework import serializers
 
-from store.models import Product, Category, TemporaryBasket, Coupon, Address, Order, ProductOrder
+from store.models import Product, Category, TemporaryBasket, Coupon, Address, Order, ProductOrder, Slider
 
 
 class ProductSerializer(serializers.ModelSerializer):
@@ -74,3 +74,10 @@ class OrderSerializer(serializers.ModelSerializer):
     @staticmethod
     def get_total(obj):
         return obj.total
+
+
+
+class SliderSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Slider
+        fields = '__all__'
