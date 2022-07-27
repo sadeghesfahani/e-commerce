@@ -1,3 +1,4 @@
+from django.db.models import F
 from django.http import Http404
 from django.shortcuts import get_object_or_404
 from rest_framework import status
@@ -7,10 +8,42 @@ from rest_framework.response import Response
 
 from store.category_manager import CategoryManager
 from store.data_structures import ProductDataStructure, CategoryDataStructure, AddressDataStructure, CouponDataStructure
-from store.models import Product, Category, TemporaryBasket, Coupon, Address, ProductOrder, Order
+from store.models import Product, Category, TemporaryBasket, Coupon, Address, ProductOrder, Order, Slider
 from store.product_manager import ProductManager
-from store.serializers import ProductSerializer, CategorySerializer, TemporaryBasketSerializer, CouponSerializer, AddressSerializer, OrderSerializer
+from store.serializers import ProductSerializer, CategorySerializer, TemporaryBasketSerializer, CouponSerializer, AddressSerializer, OrderSerializer, \
+    SliderSerializer
 from store.viewset_base import ViewSetBase
+
+
+class SliderAPI(ViewSetBase):
+
+    @staticmethod
+    def create_slider(request):
+        serializer = SliderSerializer(data=request.data)
+        if serializer.is_valid():
+            serializer.save()
+            return Response(serializer.data, status=status.HTTP_201_CREATED)
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+    @staticmethod
+    def get_sliders(request):
+        sliders = SliderSerializer(Slider.objects.all(), many=True).data
+        return Response(sliders)
+
+    @staticmethod
+    def edit_slider(request, slider_id):
+        slider = get_object_or_404(Slider, pk=slider_id)
+        serializer = SliderSerializer(slider, data=request.data)
+        if serializer.is_valid():
+            serializer.save()
+            return Response(serializer.data, status=status.HTTP_200_OK)
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+    @staticmethod
+    def delete_slider(request, slider_id):
+        slider = get_object_or_404(Slider, pk=slider_id)
+        slider.delete()
+        return Response(status=status.HTTP_204_NO_CONTENT)
 
 
 class ProductAPI(ViewSetBase):
@@ -94,6 +127,12 @@ class ProductAPI(ViewSetBase):
     @staticmethod
     def create_featured_product(request):
         return Response(ProductSerializer(Product.objects.filter(featured=True), many=True, read_only=True).data)
+
+    @staticmethod
+    def get_incredible_products(request):
+        query_set = Product.objects.annotate(diff=F("price") - F("final_price"))
+        new_query_set = query_set.filter(diff__gt=0)
+        return Response(ProductSerializer(new_query_set, many=True, read_only=True).data)
 
 
 class CategoryAPI(ViewSetBase):
