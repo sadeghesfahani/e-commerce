@@ -58,7 +58,7 @@ MIDDLEWARE = [
 
 ROOT_URLCONF = 'e_commerce.urls'
 
-LOCAL_APP =[
+LOCAL_APP = [
     'user',
     'store'
 ]
@@ -97,6 +97,8 @@ DATABASES = {
     'default': {
 
         'ENGINE': 'django.db.backends.postgresql_psycopg2',
+
+        'DISABLE_SERVER_SIDE_CURSORS': True,
 
         'NAME': "ecommerce",
 
