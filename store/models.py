@@ -40,6 +40,7 @@ class Product(models.Model):
     extra_information = models.JSONField(blank=True, null=True)
     featured = models.BooleanField(default=False)
     remaining = models.SmallIntegerField(default=0)
+    created_at = models.DateTimeField(auto_now_add=True,blank=True, null=True)
 
 
     def __str__(self):

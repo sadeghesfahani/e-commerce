@@ -1,13 +1,23 @@
 from attr.filters import exclude
+from django.db.models import Sum
 from rest_framework import serializers
 
 from store.models import Product, Category, TemporaryBasket, Coupon, Address, Order, ProductOrder, Slider
 
 
 class ProductSerializer(serializers.ModelSerializer):
+    sell = serializers.SerializerMethodField()
+
     class Meta:
         model = Product
         fields = '__all__'
+
+    @staticmethod
+    def get_sell(obj):
+        quantity = ProductOrder.objects.filter(product=obj).annotate(Sum("quantity"))
+        if len(quantity) > 0:
+            return quantity[0].quantity__sum
+        return 0
 
 
 class SimpleCategorySerializer(serializers.ModelSerializer):
@@ -74,7 +84,6 @@ class OrderSerializer(serializers.ModelSerializer):
     @staticmethod
     def get_total(obj):
         return obj.total
-
 
 
 class SliderSerializer(serializers.ModelSerializer):
