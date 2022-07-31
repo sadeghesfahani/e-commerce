@@ -14,14 +14,13 @@
 ### 2. اجرا بک اند
 به منظور اجرا بک اند در روت پروژه رفته و برای ویندوز دستور
 ```
-docker-compose up
+docker-compose up --build
 ````
 و برای مک و لینوکس دستور
 ```
-sudo docker-compose up
+sudo docker-compose up --build
 ```
-را اجرا نمایید و پس از اتمام دستور بک اند شما بر روی پورت ۸۰۰۰ قابل دسترس است
-
+را اجرا نمایید و پس از اتمام دستور بک اند شما بر روی آدرس localhost قابل دسترس است
 
 برای اطلاعات بیشتر از چگونگی عملکرد اندپوینت ها به
 [مستندات](https://github.com/sadeghesfahani/e-commerce/wiki/%D9%85%D8%B3%D8%AA%D9%86%D8%AF%D8%A7%D8%AA)
