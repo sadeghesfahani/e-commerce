@@ -5,21 +5,29 @@ services:
       context: .
       dockerfile: Dockerfile
     ports:
-      - "8000:8000"
       - "63342:63342"
     links:
       - postgres:postgres
       - redis:redis
     env_file:
       - ./environments/production.env
-#    command:  bash -c "python3 manage.py makemigrations && python3 manage.py migrate && python3 manage.py runserver 0.0.0.0:8000"
     depends_on:
       - redis
       - postgres
     volumes:
       - ./:/usr/src/app
 
-
+  caddy:
+    build:
+      context: .
+      dockerfile: caddy.dockerfile
+    depends_on:
+      - ecommerce
+    links:
+      - ecommerce:ecommerce
+    ports:
+      - 443:443
+      - 80:80
   redis:
     image: redis:6
     restart: always
@@ -38,7 +46,7 @@ services:
     volumes:
       - postgres:/var/lib/postgresql/data
     ports:
-      - "5432:5432"
+      - 5432:5432
 
   pgadmin:
     image: dpage/pgadmin4
