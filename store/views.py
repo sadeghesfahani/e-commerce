@@ -1,16 +1,49 @@
+from django.db.models import F
 from django.http import Http404
 from django.shortcuts import get_object_or_404
 from rest_framework import status
 from rest_framework.exceptions import PermissionDenied
-from rest_framework.permissions import IsAuthenticated
+from rest_framework.permissions import IsAuthenticated, IsAdminUser, AllowAny
 from rest_framework.response import Response
 
 from store.category_manager import CategoryManager
 from store.data_structures import ProductDataStructure, CategoryDataStructure, AddressDataStructure, CouponDataStructure
-from store.models import Product, Category, TemporaryBasket, Coupon, Address, ProductOrder, Order
+from store.models import Product, Category, TemporaryBasket, Coupon, Address, ProductOrder, Order, Slider
 from store.product_manager import ProductManager
-from store.serializers import ProductSerializer, CategorySerializer, TemporaryBasketSerializer, CouponSerializer, AddressSerializer, OrderSerializer
+from store.serializers import ProductSerializer, CategorySerializer, TemporaryBasketSerializer, CouponSerializer, AddressSerializer, OrderSerializer, \
+    SliderSerializer
 from store.viewset_base import ViewSetBase
+
+
+class SliderAPI(ViewSetBase):
+
+    @staticmethod
+    def create_slider(request):
+        serializer = SliderSerializer(data=request.data)
+        if serializer.is_valid():
+            serializer.save()
+            return Response(serializer.data, status=status.HTTP_201_CREATED)
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+    @staticmethod
+    def get_sliders(request):
+        sliders = SliderSerializer(Slider.objects.all(), many=True).data
+        return Response(sliders)
+
+    @staticmethod
+    def edit_slider(request, slider_id):
+        slider = get_object_or_404(Slider, pk=slider_id)
+        serializer = SliderSerializer(slider, data=request.data)
+        if serializer.is_valid():
+            serializer.save()
+            return Response(serializer.data, status=status.HTTP_200_OK)
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+    @staticmethod
+    def delete_slider(request, slider_id):
+        slider = get_object_or_404(Slider, pk=slider_id)
+        slider.delete()
+        return Response(status=status.HTTP_204_NO_CONTENT)
 
 
 class ProductAPI(ViewSetBase):
@@ -78,7 +111,10 @@ class ProductAPI(ViewSetBase):
         return ProductManager(product).edit(parameters)
 
     def get_permissions(self):
-        self.permission_classes = [IsAuthenticated]
+        if self.action == "create_product" or self.action == "edit_product_id" or self.action == "edit_product_slug" or self.action == "delete_product_id" or self.action == "delete_product_slug":
+            self.permission_classes = [IsAdminUser]
+        else:
+            self.permission_classes = [AllowAny]
         return super(ProductAPI, self).get_permissions()
 
     def search(self, request):
@@ -91,6 +127,12 @@ class ProductAPI(ViewSetBase):
     @staticmethod
     def create_featured_product(request):
         return Response(ProductSerializer(Product.objects.filter(featured=True), many=True, read_only=True).data)
+
+    @staticmethod
+    def get_incredible_products(request):
+        query_set = Product.objects.annotate(diff=F("price") - F("final_price"))
+        new_query_set = query_set.filter(diff__gt=0)
+        return Response(ProductSerializer(new_query_set, many=True, read_only=True).data)
 
 
 class CategoryAPI(ViewSetBase):
@@ -135,6 +177,13 @@ class CategoryAPI(ViewSetBase):
         categories = Category.objects.filter(featured=True)
         return Response(CategorySerializer(categories, many=True, read_only=True).data)
 
+    def get_permissions(self):
+        if self.action == "create_category" or self.action == "edit_category_id" or self.action == "edit_category_slug" or self.action == "delete_category_id" or self.action == "delete_category_slug":
+            self.permission_classes = [IsAdminUser]
+        else:
+            self.permission_classes = [AllowAny]
+        return super(CategoryAPI, self).get_permissions()
+
 
 class CouponAPI(ViewSetBase):
     def validate(self, request):
@@ -177,6 +226,13 @@ class CouponAPI(ViewSetBase):
         else:
             raise PermissionDenied
 
+    def get_permissions(self):
+        if self.action == "create_coupon" or self.action == "edit_coupon":
+            self.permission_classes = [IsAdminUser]
+        else:
+            self.permission_classes = [AllowAny]
+        return super(CouponAPI, self).get_permissions()
+
 
 class AddressAPI(ViewSetBase):
     @staticmethod
@@ -211,6 +267,10 @@ class AddressAPI(ViewSetBase):
             return Response({"status": "success", "message": "Address deleted"}, status=status.HTTP_202_ACCEPTED)
         except Exception as ex:
             return Response({"status": "failed", "message": str(ex)}, status=status.HTTP_406_NOT_ACCEPTABLE)
+
+    def get_permissions(self):
+        self.permission_classes = [IsAuthenticated]
+        return super(AddressAPI, self).get_permissions()
 
 
 class OrderAPI(ViewSetBase):
@@ -312,3 +372,7 @@ class OrderAPI(ViewSetBase):
             return Response({"status": "success", "message": "Order deleted"}, status=status.HTTP_202_ACCEPTED)
         except Exception as ex:
             return Response({"status": "failed", "message": str(ex)}, status=status.HTTP_406_NOT_ACCEPTABLE)
+
+    def get_permissions(self):
+        self.permission_classes = [IsAuthenticated]
+        return super(OrderAPI, self).get_permissions()

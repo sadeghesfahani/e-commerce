@@ -4,10 +4,22 @@ from django.db import models
 from user.models import User
 
 
+class Slider(models.Model):
+    title = models.CharField(max_length=100, blank=True, null=True)
+    description = models.TextField(blank=True, null=True)
+    image = models.CharField(max_length=100000, blank=True, null=True)
+    url = models.CharField(max_length=500, blank=True, null=True)
+
+    def __str__(self):
+        return self.title
+
+
 class Category(models.Model):
     name = models.CharField(max_length=100)
     parent = models.ForeignKey('self', on_delete=models.CASCADE, null=True, blank=True)
     slug = models.SlugField(max_length=100, null=True, blank=True)
+    icon = models.CharField(max_length=100, null=True, blank=True)
+    image = models.CharField(max_length=25000, null=True, blank=True)
     featured = models.BooleanField(default=False)
 
     def __str__(self):
@@ -28,6 +40,8 @@ class Product(models.Model):
     extra_information = models.JSONField(blank=True, null=True)
     featured = models.BooleanField(default=False)
     remaining = models.SmallIntegerField(default=0)
+    created_at = models.DateTimeField(auto_now_add=True,blank=True, null=True)
+
 
     def __str__(self):
         return self.name

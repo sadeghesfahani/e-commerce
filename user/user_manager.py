@@ -42,9 +42,11 @@ class UserManager:
 
 
 class UserDataStructure:
-    def __init__(self, username=None, password=None, *args, **kwargs):
+    def __init__(self, username=None, password=None, email=None, phone=None, *args, **kwargs):
         self._set_parameter("username", username)
         self._set_parameter("password", password)
+        self._set_parameter("email", email)
+        self._set_parameter("phone", phone)
 
     def _set_parameter(self, parameter, value):
         if value is not None:

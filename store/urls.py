@@ -1,5 +1,5 @@
 from django.urls import path, re_path
-from store.views import ProductAPI, CategoryAPI, CouponAPI, OrderAPI, AddressAPI
+from store.views import ProductAPI, CategoryAPI, CouponAPI, OrderAPI, AddressAPI, SliderAPI
 
 urlpatterns = [
     path('category/', CategoryAPI.as_view({"post": "create_category", "get": "get_categories"})),
@@ -14,6 +14,7 @@ urlpatterns = [
     path('product/category/id/<int:category_id>', ProductAPI.as_view({"get": "get_category_products_id"})),
     path('product/category/slug/<slug:category_slug>', ProductAPI.as_view({"get": "get_category_products_slug"})),
     path('product/search/', ProductAPI.as_view({"get": "search"})),
+    path('product/incredible/', ProductAPI.as_view({"get": "get_incredible_products"})),
     path('coupon', CouponAPI.as_view({"get": "get_coupons", "post": "create_coupon"})),
     path('coupon/validate', CouponAPI.as_view({"post": "validate"})),
     path('coupon/<int:coupon_id>', CouponAPI.as_view({"put": "edit_coupon"})),
@@ -22,4 +23,6 @@ urlpatterns = [
     path('temporary_basket', OrderAPI.as_view({"get": "get_temporary_basket", "put": "update_temporary_basket"})),
     path('order', OrderAPI.as_view({"post": "submit_order", "get": "get_orders"})),
     path('order/<int:order_id>', OrderAPI.as_view({"put": "edit_order", "delete": "delete_order"})),
+    path('slider/', SliderAPI.as_view({"post": "create_slider", "get": "get_sliders"})),
+    path('slider/<int:slider_id>', SliderAPI.as_view({"put": "edit_slider", "delete": "delete_slider"})),
 ]
