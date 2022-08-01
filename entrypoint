@@ -3,5 +3,5 @@ set -e
 python3 manage.py makemigrations
 python3 manage.py migrate
 python3 manage.py initadmin
-python3 -m gunicorn -w 4 -b 0.0.0.0:8000 e_commerce.wsgi:application
+python3 smooth_run.py
 exec "$@"

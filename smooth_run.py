@@ -33,6 +33,7 @@ class SmoothRun:
                 self.problem = True
 
                 try:
+                    print("\n\n =====>  server faced problem, we are trying to fix it automatically. getting backup")
                     os.system(f"cd {self.root} && python3 manage.py dumpdata > backup.json")
                 except:
                     os.system(f"cd {self.root} && python3 manage.py dumpdata store > backup.json")
@@ -49,17 +50,18 @@ class SmoothRun:
             self.is_make_migrations_working()
             self.is_migrate_working()
 
-        if problem:
-            print("\n\n =====>  running server")
+        if self.problem:
+            print("\n\n =====>  server faced problem, we are trying to fix it automatically")
+            os.system(f"cd {self.root} && python3 manage.py loaddata ./backup.json")
+            try:
+                os.remove("./backup.json")
+            except:
+                pass
+        execute_from_command_line(["manage.py", "initadmin"])
         if not self.deploy:
             self.run_server()
         else:
-            # os.system("cd django_app")
-            # os.system("celery -A django_app.config.celery_app beat -l INFO")
-            # os.system("watchgod celery.__main__.main --args -A config.celery_app worker -l INFO")
-            # os.system("celery -A config.celery_app beat -l INFO")
-            # execute_from_command_line(["celery", "-A", "django_app.config.celery_app", "beat", "-l", "INFO"])
-            # execute_from_command_line(["watchgod", "celery.__main__.main", "--args", "-A", "config.celery_app worker", "-l", "INFO"])
+            os.system("python3 -m gunicorn -w 4 -b 0.0.0.0:8000 e_commerce.wsgi:application")
             exit()
 
     def get_local_apps(self, name_index=1):
@@ -139,10 +141,11 @@ class SmoothRun:
 
         # sina = execute_from_command_line(["django-admin", "dumpdata","store > backup.json" ])
         # print(sina)
-        os.system(f"cd {self.root} && python3 manage.py loaddata ./backup.json")
-        execute_from_command_line(["manage.py", "initadmin"])
+
+
         execute_from_command_line(["manage.py", "runserver", "0.0.0.0:8000"])
 
 
-# deploy = True if os.environ['IS_DEPLOYMENT'] == "true" else False
-SmoothRun(True, False)
+deploy = True if os.environ['DJANGO_DEBUG'] == "False" else False
+print(deploy)
+SmoothRun(True, deploy)
