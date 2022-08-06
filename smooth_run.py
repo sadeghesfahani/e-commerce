@@ -8,9 +8,9 @@ from os import listdir
 from os.path import isfile, join
 import copy
 from time import sleep
+os.environ.setdefault("DJANGO_SETTINGS_MODULE", "e_commerce.settings")
 
-
-# django.setup()
+django.setup()
 
 
 class SmoothRun:

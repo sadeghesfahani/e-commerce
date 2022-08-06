@@ -8,10 +8,10 @@ from rest_framework.response import Response
 
 from store.category_manager import CategoryManager
 from store.data_structures import ProductDataStructure, CategoryDataStructure, AddressDataStructure, CouponDataStructure
-from store.models import Product, Category, TemporaryBasket, Coupon, Address, ProductOrder, Order, Slider, Comment
+from store.models import Product, Category, TemporaryBasket, Coupon, Address, ProductOrder, Order, Slider, Comment, Favorit
 from store.product_manager import ProductManager
 from store.serializers import ProductSerializer, CategorySerializer, TemporaryBasketSerializer, CouponSerializer, AddressSerializer, OrderSerializer, \
-    SliderSerializer, CommentSerializer
+    SliderSerializer, CommentSerializer, FavoritSerializer
 from store.viewset_base import ViewSetBase
 
 
@@ -419,3 +419,15 @@ class CommentAPI(ViewSetBase):
     def get_permissions(self):
         self.permission_classes = [IsAuthenticated]
         return super(CommentAPI, self).get_permissions()
+
+
+class FavoritView(ViewSetBase):
+    @staticmethod
+    def add_favorite(request, product_id):
+        Favorit.objects.create(user=request.user, product_id=product_id)
+        return Response(FavoritSerializer(Favorit.objects.filter(user=request.user), many=True).data)
+
+    @staticmethod
+    def remove_favorite(request, product_id):
+        Favorit.objects.filter(user=request.user, product_id=product_id).delete()
+        return Response(FavoritSerializer(Favorit.objects.filter(user=request.user), many=True).data)

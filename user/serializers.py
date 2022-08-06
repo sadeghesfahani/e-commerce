@@ -1,6 +1,6 @@
 from rest_framework import serializers
 
-from user.models import User, Favorit
+from user.models import User
 
 
 class UserSerializer(serializers.ModelSerializer):
@@ -9,7 +9,3 @@ class UserSerializer(serializers.ModelSerializer):
         exclude = ["password"]
 
 
-class FavoritSerializer(serializers.ModelSerializer):
-    class Meta:
-        model = Favorit
-        fields = "__all__"

@@ -115,7 +115,15 @@ class Comment(models.Model):
     comment = models.TextField(blank=True, null=True)
     rate = models.SmallIntegerField(null=True, blank=True)
     created = models.DateTimeField(auto_now_add=True)
-    to = models.ForeignKey('self', blank=True, null=True, on_delete=models.SET_NULL)
+    to = models.ForeignKey('self', blank=True, null=True, on_delete=models.SET_NULL,related_name='replies')
 
     def __str__(self):
         return self.user.username
+
+
+class Favorit(models.Model):
+    user = models.ForeignKey(User, on_delete=models.CASCADE)
+    product = models.ForeignKey(Product, on_delete=models.CASCADE)
+
+    class Meta:
+        unique_together = ('user', 'product')

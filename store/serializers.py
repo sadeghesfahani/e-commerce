@@ -2,7 +2,7 @@ from attr.filters import exclude
 from django.db.models import Sum
 from rest_framework import serializers
 
-from store.models import Product, Category, TemporaryBasket, Coupon, Address, Order, ProductOrder, Slider, Comment
+from store.models import Product, Category, TemporaryBasket, Coupon, Address, Order, ProductOrder, Slider, Comment, Favorit
 
 
 class ProductSerializer(serializers.ModelSerializer):
@@ -104,3 +104,9 @@ class CommentSerializer(serializers.ModelSerializer):
     class Meta:
         model = Comment
         fields = '__all__'
+
+
+class FavoritSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Favorit
+        fields = "__all__"

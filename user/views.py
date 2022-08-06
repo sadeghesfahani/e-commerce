@@ -6,8 +6,8 @@ from rest_framework.exceptions import PermissionDenied
 from rest_framework.response import Response
 from rest_framework import status
 
-from user.models import User, Favorit
-from user.serializers import UserSerializer, FavoritSerializer
+from user.models import User
+from user.serializers import UserSerializer
 from user.user_manager import UserManager
 from rest_framework.authtoken.models import Token
 
@@ -46,15 +46,7 @@ class UserAPI(viewsets.ViewSet):
         user.save()
         return Response({"status": "done"})
 
-    @staticmethod
-    def add_favorite(request, product_id):
-        Favorit.objects.create(user=request.user, product_id=product_id)
-        return Response(FavoritSerializer(Favorit.objects.filter(user=request.user), many=True).data)
 
-    @staticmethod
-    def remove_favorite(request, product_id):
-        Favorit.objects.filter(user=request.user, product_id=product_id).delete()
-        return Response(FavoritSerializer(Favorit.objects.filter(user=request.user), many=True).data)
 
     @staticmethod
     def generate_parameters(request):
