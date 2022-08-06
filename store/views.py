@@ -136,6 +136,12 @@ class ProductAPI(ViewSetBase):
 
 
 class CategoryAPI(ViewSetBase):
+
+    @staticmethod
+    def get_category_id(request, category_id):
+        category = get_object_or_404(Category,pk=category_id)
+        return Response(CategorySerializer(category, many=False, read_only=True).data)
+
     def create_category(self, request):
         parameters = self.generate_parameters(request)
         structured_category = CategoryDataStructure(**parameters)
