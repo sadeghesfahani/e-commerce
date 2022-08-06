@@ -40,8 +40,7 @@ class Product(models.Model):
     extra_information = models.JSONField(blank=True, null=True)
     featured = models.BooleanField(default=False)
     remaining = models.SmallIntegerField(default=0)
-    created_at = models.DateTimeField(auto_now_add=True,blank=True, null=True)
-
+    created_at = models.DateTimeField(auto_now_add=True, blank=True, null=True)
 
     def __str__(self):
         return self.name
@@ -108,3 +107,15 @@ class Order(models.Model):
 class TemporaryBasket(models.Model):
     user = models.ForeignKey(User, on_delete=models.CASCADE)
     data = models.JSONField(blank=True, null=True)
+
+
+class Comment(models.Model):
+    user = models.ForeignKey(User, on_delete=models.CASCADE)
+    product = models.ForeignKey(Product, on_delete=models.CASCADE)
+    comment = models.TextField(blank=True, null=True)
+    rate = models.SmallIntegerField(null=True, blank=True)
+    created = models.DateTimeField(auto_now_add=True)
+    to = models.ForeignKey('self', blank=True, null=True, on_delete=models.SET_NULL)
+
+    def __str__(self):
+        return self.user.username

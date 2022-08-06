@@ -8,10 +8,10 @@ from rest_framework.response import Response
 
 from store.category_manager import CategoryManager
 from store.data_structures import ProductDataStructure, CategoryDataStructure, AddressDataStructure, CouponDataStructure
-from store.models import Product, Category, TemporaryBasket, Coupon, Address, ProductOrder, Order, Slider
+from store.models import Product, Category, TemporaryBasket, Coupon, Address, ProductOrder, Order, Slider, Comment
 from store.product_manager import ProductManager
 from store.serializers import ProductSerializer, CategorySerializer, TemporaryBasketSerializer, CouponSerializer, AddressSerializer, OrderSerializer, \
-    SliderSerializer
+    SliderSerializer, CommentSerializer
 from store.viewset_base import ViewSetBase
 
 
@@ -139,7 +139,7 @@ class CategoryAPI(ViewSetBase):
 
     @staticmethod
     def get_category_id(request, category_id):
-        category = get_object_or_404(Category,pk=category_id)
+        category = get_object_or_404(Category, pk=category_id)
         return Response(CategorySerializer(category, many=False, read_only=True).data)
 
     def create_category(self, request):
@@ -382,3 +382,40 @@ class OrderAPI(ViewSetBase):
     def get_permissions(self):
         self.permission_classes = [IsAuthenticated]
         return super(OrderAPI, self).get_permissions()
+
+
+class CommentAPI(ViewSetBase):
+
+    @staticmethod
+    def get_comments(request, product_id):
+        comments = Comment.objects.filter(product_id=product_id)
+        return Response(CommentSerializer(comments, many=True, read_only=True).data)
+
+    def create_comment(self, request, product_id):
+        parameters = self.generate_parameters(request)
+        product_object = get_object_or_404(Product, id=product_id)
+        comment = Comment.objects.create(user=request.user, product=product_object, comment=parameters.get("comment"), rate=parameters.get("rate"),
+                                         to=parameters.get("to"))
+        return Response(CommentSerializer(comment, many=False, read_only=True).data)
+
+    def edit_comment(self, request, comment_id):
+        parameters = self.generate_parameters(request)
+        comment = get_object_or_404(Comment, id=comment_id)
+        comment.comment = parameters.get("comment")
+        comment.rate = parameters.get("rate")
+        comment.to = parameters.get("to")
+        comment.save()
+        return Response(CommentSerializer(comment, many=False, read_only=True).data)
+
+    @staticmethod
+    def delete_comment(request, comment_id):
+        comment = get_object_or_404(Comment, id=comment_id)
+        try:
+            comment.delete()
+            return Response({"status": "success", "message": "Comment deleted"}, status=status.HTTP_202_ACCEPTED)
+        except Exception as ex:
+            return Response({"status": "failed", "message": str(ex)}, status=status.HTTP_406_NOT_ACCEPTABLE)
+
+    def get_permissions(self):
+        self.permission_classes = [IsAuthenticated]
+        return super(CommentAPI, self).get_permissions()

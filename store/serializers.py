@@ -2,7 +2,7 @@ from attr.filters import exclude
 from django.db.models import Sum
 from rest_framework import serializers
 
-from store.models import Product, Category, TemporaryBasket, Coupon, Address, Order, ProductOrder, Slider
+from store.models import Product, Category, TemporaryBasket, Coupon, Address, Order, ProductOrder, Slider, Comment
 
 
 class ProductSerializer(serializers.ModelSerializer):
@@ -89,4 +89,18 @@ class OrderSerializer(serializers.ModelSerializer):
 class SliderSerializer(serializers.ModelSerializer):
     class Meta:
         model = Slider
+        fields = '__all__'
+
+
+class SimpleCommentSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Comment
+        fields = "__all__"
+
+
+class CommentSerializer(serializers.ModelSerializer):
+    to = SimpleCommentSerializer(read_only=True)
+
+    class Meta:
+        model = Comment
         fields = '__all__'
