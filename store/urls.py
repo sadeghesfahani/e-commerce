@@ -3,7 +3,7 @@ from store.views import ProductAPI, CategoryAPI, CouponAPI, OrderAPI, AddressAPI
 
 urlpatterns = [
     path('category/', CategoryAPI.as_view({"post": "create_category", "get": "get_categories"})),
-    path('category/id/<int:category_id>', CategoryAPI.as_view({"put": "edit_category_id", "delete": "delete_category_id"})),
+    path('category/id/<int:category_id>', CategoryAPI.as_view({"put": "edit_category_id", "delete": "delete_category_id","get":"get_category_id"})),
     path('category/slug/<slug:category_slug>', CategoryAPI.as_view({"put": "edit_category_slug", "delete": "delete_category_slug"})),
     path('category/featured', CategoryAPI.as_view({"get": "get_featured_categories"})),
     path('product/', ProductAPI.as_view({"post": "create_product", "get": "get_all_products"})),
