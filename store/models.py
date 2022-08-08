@@ -26,6 +26,14 @@ class Category(models.Model):
         return self.name
 
 
+class Brand(models.Model):
+    name = models.CharField(max_length=100)
+    image = models.CharField(max_length=25000, null=True, blank=True)
+
+    def __str__(self):
+        return self.name
+
+
 class Product(models.Model):
     category = models.ForeignKey(Category, on_delete=models.CASCADE)
     name = models.CharField(max_length=100)
@@ -41,6 +49,8 @@ class Product(models.Model):
     featured = models.BooleanField(default=False)
     remaining = models.SmallIntegerField(default=0)
     created_at = models.DateTimeField(auto_now_add=True, blank=True, null=True)
+    related_products = models.ManyToManyField('self', blank=True)
+    brand = models.ForeignKey(Brand, on_delete=models.SET_NULL, null=True, blank=True)
 
     def __str__(self):
         return self.name
@@ -115,7 +125,9 @@ class Comment(models.Model):
     comment = models.TextField(blank=True, null=True)
     rate = models.SmallIntegerField(null=True, blank=True)
     created = models.DateTimeField(auto_now_add=True)
-    to = models.ForeignKey('self', blank=True, null=True, on_delete=models.SET_NULL,related_name='replies')
+    to = models.ForeignKey('self', blank=True, null=True, on_delete=models.SET_NULL, related_name='replies')
+    like = models.ManyToManyField(User, blank=True, related_name='like_comment')
+    dislike = models.ManyToManyField(User, blank=True, related_name='dislike_comment')
 
     def __str__(self):
         return self.user.username

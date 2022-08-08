@@ -1,12 +1,21 @@
 from attr.filters import exclude
-from django.db.models import Sum
+from django.db.models import Sum, Avg
 from rest_framework import serializers
 
 from store.models import Product, Category, TemporaryBasket, Coupon, Address, Order, ProductOrder, Slider, Comment, Favorit
 
 
+class RelatedProductsSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Product
+        fields = ('id', 'name', 'price', 'main_image', 'final_price', 'featured', 'slug', 'remaining')
+
+
 class ProductSerializer(serializers.ModelSerializer):
     sell = serializers.SerializerMethodField()
+    related_products = RelatedProductsSerializer(many=True)
+    rate = serializers.SerializerMethodField()
+    comments = serializers.SerializerMethodField()
 
     class Meta:
         model = Product
@@ -18,6 +27,15 @@ class ProductSerializer(serializers.ModelSerializer):
         if len(quantity) > 0:
             return quantity[0].quantity__sum
         return 0
+
+    @staticmethod
+    def get_rate(obj):
+        comments = Comment.objects.filter(rate__isnull=False, product=obj).aggregate(rate=Avg('rate'))
+        return comments['rate'] / Comment.objects.filter(product=obj, rate__isnull=False).count() if comments['rate'] else 0
+
+    @staticmethod
+    def get_comments(obj):
+        return CommentSerializer(Comment.objects.filter(product=obj), many=True, read_only=True).data
 
 
 class SimpleCategorySerializer(serializers.ModelSerializer):
@@ -100,10 +118,20 @@ class SimpleCommentSerializer(serializers.ModelSerializer):
 
 class CommentSerializer(serializers.ModelSerializer):
     to = SimpleCommentSerializer(read_only=True)
+    like_number = serializers.SerializerMethodField()
+    dislike_number = serializers.SerializerMethodField()
 
     class Meta:
         model = Comment
-        fields = '__all__'
+        exclude = ['like', 'dislike']
+
+    @staticmethod
+    def get_like_number(obj):
+        return obj.like.count()
+
+    @staticmethod
+    def get_dislike_number(obj):
+        return obj.dislike.count()
 
 
 class FavoritSerializer(serializers.ModelSerializer):
