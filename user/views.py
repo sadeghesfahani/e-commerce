@@ -58,7 +58,7 @@ class UserAPI(viewsets.ViewSet):
 
         else:
             user_manager = UserManager(user)
-            user_manager.edit(**parameters)
+            user_manager.edit(**parameters,username=user.username)
             return Response(UserSerializer(user, many=False, read_only=True).data)
 
     @staticmethod
