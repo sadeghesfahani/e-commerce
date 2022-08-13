@@ -48,11 +48,18 @@ class UserAPI(viewsets.ViewSet):
 
     def change_user_info(self, request):
         parameters = self.generate_parameters(request)
-        username = parameters.get("username")
-        user = User.objects.get(username=username)
-        user_manager = UserManager(user)
-        user_manager.edit(**parameters)
-        return Response(UserSerializer(user, many=False, read_only=True).data)
+        user = request.user
+        if user.is_superuser and parameters.get("username") is not None:
+            username = parameters.get("username")
+            user = User.objects.get(username=username)
+            user_manager = UserManager(user)
+            user_manager.edit(**parameters)
+            return Response(UserSerializer(user, many=False, read_only=True).data)
+
+        else:
+            user_manager = UserManager(user)
+            user_manager.edit(**parameters)
+            return Response(UserSerializer(user, many=False, read_only=True).data)
 
     @staticmethod
     def generate_parameters(request):
