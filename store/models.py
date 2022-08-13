@@ -104,7 +104,7 @@ class Order(models.Model):
     def total(self):
         total = 0
         for product in self.products.all():
-            total += product.product.price * product.quantity
+            total += product.product.final_price * product.quantity
 
         if self.coupon:
             if self.coupon.discount_type == 'percent':
