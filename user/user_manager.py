@@ -47,6 +47,8 @@ class UserDataStructure:
         self._set_parameter("password", password)
         self._set_parameter("email", email)
         self._set_parameter("phone", phone)
+        self._set_parameter('first_name', kwargs.get('firstName'))
+        self._set_parameter('last_name', kwargs.get('lastName'))
 
     def _set_parameter(self, parameter, value):
         if value is not None:
