@@ -35,7 +35,7 @@ class UserManager:
             raise BadRequest("username must specify")
         except User.DoesNotExist:
             raise Http404(f"username with username of {structured_data_for_user.username} does not exist")
-
+        return user
     @staticmethod
     def login(request, *args, **kwargs):
         return authenticate(request=request, **kwargs)
