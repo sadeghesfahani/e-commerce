@@ -1,5 +1,5 @@
 from django.urls import path, re_path
-from store.views import ProductAPI, CategoryAPI, CouponAPI, OrderAPI, AddressAPI, SliderAPI, CommentAPI
+from store.views import ProductAPI, CategoryAPI, CouponAPI, OrderAPI, AddressAPI, SliderAPI, CommentAPI, BrandAPI
 
 urlpatterns = [
     path('category/', CategoryAPI.as_view({"post": "create_category", "get": "get_categories"})),
@@ -27,4 +27,6 @@ urlpatterns = [
     path('slider/<int:slider_id>', SliderAPI.as_view({"put": "edit_slider", "delete": "delete_slider"})),
     path('comment/<int:product_id>',
          CommentAPI.as_view({"get": "get_comments", "post": "create_comment", "put": "edit_comment", "delete": "delete_comment"})),
+    path('brand/', BrandAPI.as_view({"get": "get_brands", "post": "create_brand"})),
+    path('brand/<int:brand_id>/', BrandAPI.as_view({"delete": "delete_brand", "put": "edit_brand", "post": "get_products"})),
 ]

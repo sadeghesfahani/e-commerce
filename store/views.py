@@ -8,10 +8,10 @@ from rest_framework.response import Response
 
 from store.category_manager import CategoryManager
 from store.data_structures import ProductDataStructure, CategoryDataStructure, AddressDataStructure, CouponDataStructure
-from store.models import Product, Category, TemporaryBasket, Coupon, Address, ProductOrder, Order, Slider, Comment, Favorit
+from store.models import Product, Category, TemporaryBasket, Coupon, Address, ProductOrder, Order, Slider, Comment, Favorit, Brand
 from store.product_manager import ProductManager
 from store.serializers import ProductSerializer, CategorySerializer, TemporaryBasketSerializer, CouponSerializer, AddressSerializer, OrderSerializer, \
-    SliderSerializer, CommentSerializer, FavoritSerializer
+    SliderSerializer, CommentSerializer, FavoritSerializer, BrandSerializer
 from store.viewset_base import ViewSetBase
 
 
@@ -431,3 +431,57 @@ class FavoritView(ViewSetBase):
     def remove_favorite(request, product_id):
         Favorit.objects.filter(user=request.user, product_id=product_id).delete()
         return Response(FavoritSerializer(Favorit.objects.filter(user=request.user), many=True).data)
+
+
+class BrandAPI(ViewSetBase):
+
+    @staticmethod
+    def get_products(self, request, brand_id):
+        parameters = self.generate_parameters(request)
+        if parameters.get("category") is not None:
+            products = Product.objects.filter(brand_id=brand_id, category_id=parameters.get("category"))
+        else:
+            products = Product.objects.filter(brand_id=brand_id)
+        return Response(ProductSerializer(products, many=True, read_only=True).data)
+
+    @staticmethod
+    def get_brands(request):
+        brands = Brand.objects.all()
+        return Response(BrandSerializer(brands, many=True, read_only=True).data)
+
+    def create_brand(self, request):
+        parameters = self.generate_parameters(request)
+        print(parameters)
+        brand = BrandSerializer(data=parameters)
+        if brand.is_valid():
+            brand.save()
+        else:
+            return Response(brand.errors, status=status.HTTP_406_NOT_ACCEPTABLE)
+        return Response(brand.data, status=status.HTTP_201_CREATED)
+
+    def edit_brand(self, request, brand_id):
+        parameters = self.generate_parameters(request)
+        brand = get_object_or_404(Brand, id=brand_id)
+        edited_brand = BrandSerializer(brand, data=parameters)
+        if edited_brand.is_valid():
+            edited_brand.save()
+        else:
+            return Response(edited_brand.errors, status=status.HTTP_406_NOT_ACCEPTABLE)
+        return Response(BrandSerializer(brand, many=False, read_only=True).data, status=status.HTTP_202_ACCEPTED)
+
+    @staticmethod
+    def delete_brand(request, brand_id):
+        brand = get_object_or_404(Brand, id=brand_id)
+        try:
+            brand.delete()
+            return Response({"status": "success", "message": "Brand deleted"}, status=status.HTTP_202_ACCEPTED)
+        except Exception as ex:
+            return Response({"status": "failed", "message": str(ex)}, status=status.HTTP_406_NOT_ACCEPTABLE)
+
+    def get_permissions(self):
+        if self.action == "get_brands":
+            self.permission_classes = [AllowAny]
+        else:
+            self.permission_classes = [IsAuthenticated, IsAdminUser]
+
+        return super(BrandAPI, self).get_permissions()
