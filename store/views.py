@@ -316,7 +316,10 @@ class OrderAPI(ViewSetBase):
 
     @staticmethod
     def get_orders(request):
-        orders = Order.objects.filter(user=request.user)
+        if request.user.is_superuser:
+            orders = Order.objects.all()
+        else:
+            orders = Order.objects.filter(user=request.user)
         return Response(OrderSerializer(orders, many=True, read_only=True).data)
 
     def edit_order(self, request, order_id):
