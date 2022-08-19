@@ -243,7 +243,10 @@ class CouponAPI(ViewSetBase):
 class AddressAPI(ViewSetBase):
     @staticmethod
     def get_addresses(request):
-        addresses = Address.objects.filter(user=request.user)
+        if request.user.is_superuser:
+            addresses = Address.objects.all()
+        else:
+            addresses = Address.objects.filter(user=request.user)
         return Response(AddressSerializer(addresses, many=True, read_only=True).data)
 
     def create_address(self, request):
