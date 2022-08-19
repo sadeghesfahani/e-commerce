@@ -62,6 +62,13 @@ class UserAPI(viewsets.ViewSet):
             return Response(UserSerializer(user, many=False, read_only=True).data)
 
     @staticmethod
+    def get_all_users(request):
+        if not request.user.is_superuser:
+            raise PermissionDenied
+        users = User.objects.all()
+        return Response(UserSerializer(users, many=True, read_only=True).data)
+
+    @staticmethod
     def generate_parameters(request):
         """
         this method is being used to combine all post, data and get parameters to make http method changes easier
