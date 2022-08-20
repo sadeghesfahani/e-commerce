@@ -1,6 +1,6 @@
 from django.shortcuts import get_object_or_404
 
-from store.models import Category
+from store.models import Category, Brand
 
 
 class ProductDataStructure:
@@ -17,11 +17,14 @@ class ProductDataStructure:
         self._set_parameter("options", kwargs.get("options"))
         self._set_parameter("extra_information", kwargs.get("extra_information"))
         self._set_parameter("remaining", kwargs.get("remaining"))
+        self._set_parameter("brand", kwargs.get("brand"))
 
     def _set_parameter(self, parameter, value):
         if value is not None:
             if parameter == "category":
                 self.category = get_object_or_404(Category, id=value)
+            elif parameter == "brand":
+                self.brand = get_object_or_404(Brand, id=value)
             else:
                 self.__dict__[parameter] = value
 
