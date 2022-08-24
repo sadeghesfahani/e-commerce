@@ -328,47 +328,56 @@ class OrderAPI(ViewSetBase):
     def edit_order(self, request, order_id):
         parameters = self.generate_parameters(request)
         order = get_object_or_404(Order, id=order_id)
-        address = get_object_or_404(Address, id=parameters.get("address"))
-        coupon_code = parameters.get("coupon")
-        coupon_object = get_object_or_404(Coupon, code=coupon_code) if coupon_code is not None else None
-        data = parameters.get('data')
-        order.address = address
-        order.coupon = coupon_object
-        order.data = data
+        if parameters.get("address") is not None:
+            address = get_object_or_404(Address, id=parameters.get("address"))
+            order.address = address
+
+        if parameters.get("coupon") is not None:
+            coupon_code = parameters.get("coupon")
+            coupon_object = get_object_or_404(Coupon, code=coupon_code) if coupon_code is not None else None
+            order.coupon = coupon_object
+
+        if parameters.get('data') is not None:
+            data = parameters.get('data')
+            order.data = data
+
         products = parameters.get("products")
+        if products is not None:
+            all_product_order_ids = [product_order.id for product_order in order.products.all()]
+            for product in products:
+                order_id = product.get("id")
+                if order_id is not None:
+                    all_product_order_ids.remove(order_id)
+                product_id = product.get("product")
+                product_object = get_object_or_404(Product, id=product_id)
+                if order_id:
+                    product_order = get_object_or_404(ProductOrder, id=order_id)
+                    difference = product.get("quantity") - product_order.quantity
+                    if difference > 0:
+                        product_object.remaining -= difference
+                        product_object.save()
+                    elif difference < 0:
+                        product_object.remaining += abs(difference)
+                        product_object.save()
+
+                    product_order.quantity = product.get("quantity")
+                    product_order.data = product.get("data")
+                    product_order.save()
+                else:
+                    product_object.remaining -= product.get("quantity")
+                    product_order = ProductOrder.objects.create(product=product_object, quantity=product.get("quantity"), data=product.get("data"),
+                                                                user=request.user)
+                    product_object.save()
+                    order.products.add(product_order)
+
+            for product_order_id in all_product_order_ids:
+                product_order = get_object_or_404(ProductOrder, id=product_order_id)
+                order.products.remove(product_order)
+                product_order.delete()
+
         order_status = parameters.get("status")
-        order.status = order_status
-        all_product_order_ids = [product_order.id for product_order in order.products.all()]
-        for product in products:
-            order_id = product.get("id")
-            if order_id is not None:
-                all_product_order_ids.remove(order_id)
-            product_id = product.get("product")
-            product_object = get_object_or_404(Product, id=product_id)
-            if order_id:
-                product_order = get_object_or_404(ProductOrder, id=order_id)
-                difference = product.get("quantity") - product_order.quantity
-                if difference > 0:
-                    product_object.remaining -= difference
-                    product_object.save()
-                elif difference < 0:
-                    product_object.remaining += abs(difference)
-                    product_object.save()
-
-                product_order.quantity = product.get("quantity")
-                product_order.data = product.get("data")
-                product_order.save()
-            else:
-                product_object.remaining -= product.get("quantity")
-                product_order = ProductOrder.objects.create(product=product_object, quantity=product.get("quantity"), data=product.get("data"),
-                                                            user=request.user)
-                product_object.save()
-                order.products.add(product_order)
-
-        for product_order_id in all_product_order_ids:
-            product_order = get_object_or_404(ProductOrder, id=product_order_id)
-            order.products.remove(product_order)
-            product_order.delete()
+        if order_status is not None:
+            order.status = order_status
         order.save()
         return Response(OrderSerializer(order, many=False, read_only=True).data)
 
