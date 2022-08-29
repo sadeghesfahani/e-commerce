@@ -6,7 +6,6 @@ services:
       dockerfile: Dockerfile
     ports:
       - "63342:63342"
-      - "8000:8000"
     links:
       - postgres:postgres
       - redis:redis
@@ -46,9 +45,6 @@ services:
       - POSTGRES_DB=ecommerce
     volumes:
       - postgres:/var/lib/postgresql/data
-    ports:
-      - 5432:5432
-
   pgadmin:
     image: dpage/pgadmin4
     container_name: pgadmin_ecommerce
@@ -56,9 +52,6 @@ services:
       - postgres
     env_file:
       - environments/.postgres
-    ports:
-      - "5050:5050"
-
 volumes:
   redis-data:
   postgres:
