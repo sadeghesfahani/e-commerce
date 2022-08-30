@@ -50,6 +50,8 @@ services:
     container_name: pgadmin_ecommerce
     depends_on:
       - postgres
+    ports:
+      - 5050:5050
     env_file:
       - environments/.postgres
 volumes:
