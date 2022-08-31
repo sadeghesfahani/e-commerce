@@ -1,9 +1,9 @@
 localhost {
         handle_path /static* {
-                root * /static
-                file_server
+          root * /static
+          file_server
         }
         handle_path /* {
-                reverse_proxy ecommerce:8000
+          reverse_proxy ecommerce:8000
         }
 }
