@@ -18,8 +18,8 @@ class UserAPI(viewsets.ViewSet):
     def register(self, request):
         try:
             new_user = UserManager().register(**self.generate_parameters(request))
-
-            return Response(UserSerializer(new_user, many=False, read_only=True).data, status=status.HTTP_201_CREATED)
+            token, _ = Token.objects.get_or_create(user=new_user)
+            return Response({**UserSerializer(new_user, many=False, read_only=True).data, "token": token.key}, status=status.HTTP_201_CREATED)
         except Exception as ex:
             return Response({"status": "failed", "message": str(ex), "parameters": self.generate_parameters(request)},
                             status=status.HTTP_406_NOT_ACCEPTABLE)
@@ -58,7 +58,7 @@ class UserAPI(viewsets.ViewSet):
 
         else:
             user_manager = UserManager(user)
-            user = user_manager.edit(**parameters,username=user.username)
+            user = user_manager.edit(**parameters, username=user.username)
             return Response(UserSerializer(user, many=False, read_only=True).data)
 
     @staticmethod
