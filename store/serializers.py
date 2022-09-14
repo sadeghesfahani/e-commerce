@@ -117,7 +117,7 @@ class SimpleCommentSerializer(serializers.ModelSerializer):
 
 
 class CommentSerializer(serializers.ModelSerializer):
-    to = SimpleCommentSerializer(read_only=True)
+    to = SimpleCommentSerializer()
     like_number = serializers.SerializerMethodField()
     dislike_number = serializers.SerializerMethodField()
 

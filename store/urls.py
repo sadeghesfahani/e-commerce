@@ -25,8 +25,9 @@ urlpatterns = [
     path('order/<int:order_id>', OrderAPI.as_view({"put": "edit_order", "delete": "delete_order"})),
     path('slider/', SliderAPI.as_view({"post": "create_slider", "get": "get_sliders"})),
     path('slider/<int:slider_id>', SliderAPI.as_view({"put": "edit_slider", "delete": "delete_slider"})),
-    path('comment/<int:product_id>',
-         CommentAPI.as_view({"get": "get_comments", "post": "create_comment", "put": "edit_comment", "delete": "delete_comment"})),
+    path('comment/<int:product_id>', CommentAPI.as_view({"get": "get_comments", "post": "create_comment"})),
+    path('comment/edit/<int:comment_id>', CommentAPI.as_view({"put": "edit_comment", "delete": "delete_comment"})),
+    path('comment/delete/<int:comment_id>', CommentAPI.as_view({"delete": "delete_comment"})),
     path('brand/', BrandAPI.as_view({"get": "get_brands", "post": "create_brand"})),
     path('brand/<int:brand_id>/', BrandAPI.as_view({"delete": "delete_brand", "put": "edit_brand", "post": "get_products"})),
 ]
