@@ -67,6 +67,36 @@ class CategorySerializer(serializers.ModelSerializer):
             return None
 
 
+class CategoryWithBrandSerializer(serializers.ModelSerializer):
+    parent = serializers.SerializerMethodField()
+    children = serializers.SerializerMethodField()
+    brands = serializers.SerializerMethodField()
+
+    class Meta:
+        model = Category
+        fields = '__all__'
+
+    @staticmethod
+    def get_parent(obj):
+        if obj.parent:
+            return CategorySerializer(obj.parent).data
+        else:
+            return None
+
+    @staticmethod
+    def get_children(obj):
+        if Category.objects.filter(parent=obj).exists():
+            return SimpleCategorySerializer(Category.objects.filter(parent=obj), many=True).data
+        else:
+            return None
+
+    @staticmethod
+    def get_brands(obj):
+        products_with_this_category = Product.objects.filter(category=obj)
+        brands = Brand.objects.filter(product__in=products_with_this_category).distinct()
+        return BrandSerializer(brands, many=True).data
+
+
 class TemporaryBasketSerializer(serializers.ModelSerializer):
     class Meta:
         model = TemporaryBasket

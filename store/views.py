@@ -11,7 +11,7 @@ from store.data_structures import ProductDataStructure, CategoryDataStructure, A
 from store.models import Product, Category, TemporaryBasket, Coupon, Address, ProductOrder, Order, Slider, Comment, Favorit, Brand
 from store.product_manager import ProductManager
 from store.serializers import ProductSerializer, CategorySerializer, TemporaryBasketSerializer, CouponSerializer, AddressSerializer, OrderSerializer, \
-    SliderSerializer, CommentSerializer, FavoritSerializer, BrandSerializer
+    SliderSerializer, CommentSerializer, FavoritSerializer, BrandSerializer, CategoryWithBrandSerializer
 from store.viewset_base import ViewSetBase
 
 
@@ -165,8 +165,14 @@ class CategoryAPI(ViewSetBase):
 
     @staticmethod
     def get_categories(request):
+        print(request)
         categories = Category.objects.all()
-        return Response(CategorySerializer(categories, many=True, read_only=True).data)
+        brand = request.GET.get('brand', False)
+        print(brand)
+        if brand:
+            return Response(CategoryWithBrandSerializer(categories, many=True, read_only=True).data)
+        else:
+            return Response(CategorySerializer(categories, many=True, read_only=True).data)
 
     @staticmethod
     def delete_category_id(request, category_id):
