@@ -134,6 +134,9 @@ class ProductAPI(ViewSetBase):
         new_query_set = query_set.filter(diff__gt=0)
         return Response(ProductSerializer(new_query_set, many=True, read_only=True).data)
 
+    @staticmethod
+    def get_products_of_a_brand(request, brand_id):
+        return Response(ProductSerializer(Product.objects.filter(brand__id=brand_id), many=True, read_only=True).data)
 
 class CategoryAPI(ViewSetBase):
 

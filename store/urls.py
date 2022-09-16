@@ -13,6 +13,7 @@ urlpatterns = [
     path('product/featured', ProductAPI.as_view({"get": "create_featured_product"})),
     path('product/category/id/<int:category_id>', ProductAPI.as_view({"get": "get_category_products_id"})),
     path('product/category/slug/<slug:category_slug>', ProductAPI.as_view({"get": "get_category_products_slug"})),
+    path('product/brand/id/<id:brand_id>', ProductAPI.as_view({"get": "get_products_of_a_brand"})),
     path('product/search/', ProductAPI.as_view({"get": "search"})),
     path('product/incredible/', ProductAPI.as_view({"get": "get_incredible_products"})),
     path('coupon', CouponAPI.as_view({"get": "get_coupons", "post": "create_coupon"})),
