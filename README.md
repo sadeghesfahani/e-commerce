@@ -35,3 +35,8 @@ sudo docker-compose up --build
 2. بهبود عملکرد اپلود تصاویر
 3. طراحی سیستم بکاپ گیر خودکار
 
+
+
+### Infrastructure model
+
+![Infrastructure model](.infragenie/infrastructure_model.png)
