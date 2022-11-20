@@ -3,6 +3,7 @@ from django.db.models import Sum, Avg
 from rest_framework import serializers
 
 from store.models import Product, Category, TemporaryBasket, Coupon, Address, Order, ProductOrder, Slider, Comment, Favorit, Brand
+from user.serializers import UserSerializer
 
 
 class RelatedProductsSerializer(serializers.ModelSerializer):
@@ -141,6 +142,7 @@ class SliderSerializer(serializers.ModelSerializer):
 
 
 class SimpleCommentSerializer(serializers.ModelSerializer):
+
     class Meta:
         model = Comment
         fields = "__all__"
@@ -150,6 +152,7 @@ class CommentSerializer(serializers.ModelSerializer):
     to = SimpleCommentSerializer()
     like_number = serializers.SerializerMethodField()
     dislike_number = serializers.SerializerMethodField()
+    user = UserSerializer(many=False)
 
     class Meta:
         model = Comment
